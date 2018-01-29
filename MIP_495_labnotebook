@@ -2,4 +2,5 @@
 Nextflow Project - Taxonomy Pipeline
 ##################################################
 ### 01-28-2018 ###
-*Created main.nf, nextflow.config, fastqc dockerfile
+*Created main.nf, nextflow.config -fastqc process
+**need to write: fastqc dockerfile
