@@ -4,3 +4,10 @@ Nextflow Project - Taxonomy Pipeline
 ### 01-28-2018 ###
 *Created main.nf, nextflow.config -fastqc process
 **need to write: fastqc dockerfile
+
+
+### 01-29-2018###
+*Met with Chris went over project --wrote 'process RunFastQC' and 'run RunCutAdapt'
+*I am not going to begin using Docker, while writing the script (b/c all dependencies are already on server)
+*Need to edit cut adapt to have proper adapter sequences
+
