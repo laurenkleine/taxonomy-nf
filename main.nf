@@ -62,24 +62,22 @@ process cd_hit_est {
 }
 
 
-/* fromPath */
-
-
 process reconcile_reads {
 	publishDir "${params.output}/reconcile_reads_Results", mode: 'copy'
 
 	tag { dataset_id }
 
 	input:
-		set dataset_id, file(forward), file(reverse) from (cut_adapt_results2)
+		set dataset_id, file("${dataset_id}.R1.fastq"), file("${dataset_id}.R2.fastq") from (cut_adapt_results2)
 		set dataset_id, file("${dataset_id}_R12_30_f.fa.cdhit") from (cd_hit_est_results)
 		
 	
 	output:
-		set dataset_id, file("${dataset_id}_R1_fu.fastq"), file("${dataset_id}_R2_fu.fastq") into (paired_filtered_fastq)
+		set dataset_id, file("${dataset_id}_R1_fu.fastq"), file("${dataset_id}_R2_fu.fastq") into (reconcile_reads_results)	
 
 	"""
-	$baseDir/bin/reconcile_fastq_to_fasta ${dataset_id}.R1.fastq $baseDir/test/cd_hit_est_Results/${dataset_id}_R12_30_f.fa.cdhit  > ${dataset_id}_R1_fu.fastq
-	$baseDir/bin/reconcile_fastq_to_fasta ${dataset_id}.R2.fastq $baseDir/test/cd_hit_est_Results/${dataset_id}_R12_30_f.fa.cdhit  > ${dataset_id}_R2_fu.fastq
+	$baseDir/bin/reconcile_fastq_to_fasta ${dataset_id}.R1.fastq ${dataset_id}_R12_30_f.fa.cdhit  > ${dataset_id}_R1_fu.fastq \
+	$baseDir/bin/reconcile_fastq_to_fasta ${dataset_id}.R2.fastq ${dataset_id}_R12_30_f.fa.cdhit  > ${dataset_id}_R2_fu.fastq
 	"""
 }
+
