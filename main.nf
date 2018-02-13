@@ -118,6 +118,6 @@ process align_reads {
 		
 	"""
 	bowtie2 -x $btindex --local -q -U ${dataset_id}_R1_fu.fastq --sensitive --score-min C,${params.min_score},0 --time -p $params.num_cpu -S ${dataset_id}_R1_fu.fastq.${params.output_suffix}_bt.sam 2> ${dataset_id}_R1_fu.fastq.${parmas.output_suffix}_bt.log
-	fasta_from_sam -f ${dataset_id}_R1_fu.fastq -r ${dataset_id}_R1_fu.fastq.${params.output_suffix}_bt.sam > ${dataset_id}_R1_fuh1.fastq
-	reconcile_read2_file ${dataset_id}_R1_fuh1.fastq ${dataset_id}_R2_fu.fastq f2 > ${dataset_id}_R2_fuh1.fastq
+	$baseDir/bin/fasta_from_sam -f ${dataset_id}_R1_fu.fastq -r ${dataset_id}_R1_fu.fastq.${params.output_suffix}_bt.sam > ${dataset_id}_R1_fuh1.fastq
+	$baseDir/bin/reconcile_read2_file ${dataset_id}_R1_fuh1.fastq ${dataset_id}_R2_fu.fastq f2 > ${dataset_id}_R2_fuh1.fastq
 	"""
