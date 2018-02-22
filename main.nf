@@ -1,7 +1,7 @@
 #!/usr/bin/env nextflow
 
 params.output = "./test" // Output subdirectory
-params.reads = "/home/laurenrk/projects/nexus/data/*_{1,2}.fastq" // Location of forward and reverse read pairs
+params.reads = "/home/laurenrk/projects/nexus/data/*_{1,2}.fastq" // Location of forward and reverse read pairs /*  sed 's/\/1*$/ 1/g' SRR532663_1.fastq */
 params.btindex = "/home/databases/cow/cow_genome" // Location of bowtie2 index of cow genome
 params.output_suffix = "cow_genome" // output suffix of files created
 params.num_cpu = "12" // num_cpu for running bowtie2
@@ -11,6 +11,9 @@ Channel
 	.fromFilePairs( params.reads, flat: true) /*When true the matching files are produced as sole elements in the emitted tuples*/
 	.ifEmpty { return "Error" }
 	.into { read_pairs; qc_pairs }
+
+
+/*dumby process*/
 
 process RunPreFastQC {
 	
@@ -32,7 +35,7 @@ process RunPreFastQC {
 
 process RunCutAdapt {
 	
-	publishDir "${params.output}/RunCutAdapt", mode: 'copy'
+	publishDir "${params.output}/RunCutAdapt", mode: 'link'
 	
 	tag { dataset_id }
 	
@@ -47,7 +50,7 @@ process RunCutAdapt {
 
 process cd_hit_est {
 	
-	publishDir "${params.output}/cd_hit_est_Results", mode: 'copy'
+	publishDir "${params.output}/cd_hit_est_Results", mode: 'link'
 	
 	tag { dataset_id }
 	
@@ -64,25 +67,24 @@ process cd_hit_est {
 	"""
 }
 
-
 process reconcile_reads {
-	
-	publishDir "${params.output}/reconcile_reads_Results", mode: 'copy'
-	
+	publishDir "${params.output}/reconcile_reads_Results", mode: 'link'
+
 	tag { dataset_id }
-	
+
 	input:
-		set dataset_id, file("${dataset_id}.R1.fastq"), file("${dataset_id}.R2.fastq") from (cut_adapt_results2)
+		set dataset_id, file("${dataset_id}.R1.fastq"), file("${dataset_id}.R2.fastq") from cut_adapt_results2
 		set dataset_id, file("${dataset_id}_R12_30_f.fa.cdhit") from (cd_hit_est_results)
-		
 	
 	output:
-		set dataset_id, file("${dataset_id}_R1_fu.fastq"), file("${dataset_id}_R2_fu.fastq") into (reconcile_reads_results1, reconcile_reads_results2)	
+		set dataset_id, file("${dataset_id}_R1_fu.fastq"), file("${dataset_id}_R2_fu.fastq") into (reconcile_reads_results1,reconcile_reads_results2)
+
 	"""
-	$baseDir/bin/reconcile_fastq_to_fasta ${dataset_id}.R1.fastq ${dataset_id}_R12_30_f.fa.cdhit  > ${dataset_id}_R1_fu.fastq \
+	$baseDir/bin/reconcile_fastq_to_fasta ${dataset_id}.R1.fastq ${dataset_id}_R12_30_f.fa.cdhit  > ${dataset_id}_R1_fu.fastq
 	$baseDir/bin/reconcile_fastq_to_fasta ${dataset_id}.R2.fastq ${dataset_id}_R12_30_f.fa.cdhit  > ${dataset_id}_R2_fu.fastq
 	"""
 }
+
 
 
 process RunPostFastQC {
@@ -104,9 +106,18 @@ process RunPostFastQC {
 	"""
 }
 
+/*
+TODO:
+*write align_reads process
+*write check input process
+*maybe write check_single_or_paired process
+*/ 
+
+
+/*
 process align_reads {
 	
-	publishDir "${params.output}/aligned_reads_Results", mode: 'copy'
+	publishDir "${params.output}/aligned_reads_Results", mode: 'link'
 	
 	tag { dataset_id }
 	
@@ -121,3 +132,4 @@ process align_reads {
 	$baseDir/bin/fasta_from_sam -f ${dataset_id}_R1_fu.fastq -r ${dataset_id}_R1_fu.fastq.${params.output_suffix}_bt.sam > ${dataset_id}_R1_fuh1.fastq
 	$baseDir/bin/reconcile_read2_file ${dataset_id}_R1_fuh1.fastq ${dataset_id}_R2_fu.fastq f2 > ${dataset_id}_R2_fuh1.fastq
 	"""
+*/
