@@ -1,9 +1,9 @@
 #!/usr/bin/env nextflow
 
 params.output = "./test" // Output subdirectory
-params.reads = "/home/laurenrk/projects/nexus/data/*_{1,2}.fastq" // Location of forward and reverse read pairs /*  sed 's/\/1*$/ 1/g' SRR532663_1.fastq */
-params.btindex = "/home/databases/cow/cow_genome" // Location of bowtie2 index of cow genome
-params.output_suffix = "cow_genome" // output suffix of files created
+params.reads = "/home/laurenrk/projects/nexus/data/*_R{1,2}.fastq" // Location of forward and reverse read pairs /*  sed 's/\/1*$/ 1/g' SRR532663_1.fastq */
+params.btindex = "/home/databases/croc/croc_genome" // Location of bowtie2 index of cow genome
+params.output_suffix = "croc_genome" // output suffix of files created
 params.num_cpu = "12" // num_cpu for running bowtie2
 params.min_score = "60" // minimum alignment score -a score of 60 corresponds to approximately a perfect match over 30 nt
 
@@ -22,7 +22,7 @@ process RunPreFastQC {
 	tag { dataset_id }
 	
 	input:
-		set dataset_id, file(forward), file(reverse) from (read_pairs)
+		set dataset_id, file(forward), file(reverse) from (qc_pairs)
 	
 	output:
 		set dataset_id, file('*_fastqc.{html,zip}') into (fastqc_results_pre)
@@ -33,6 +33,7 @@ process RunPreFastQC {
 	"""
 }
 
+
 process RunCutAdapt {
 	
 	publishDir "${params.output}/RunCutAdapt", mode: 'link'
@@ -40,7 +41,7 @@ process RunCutAdapt {
 	tag { dataset_id }
 	
 	input:
-		set dataset_id, file(forward), file(reverse) from (qc_pairs)
+		set dataset_id, file(forward), file(reverse) from (read_pairs)
 	output:
 		set dataset_id, file("${dataset_id}.R1.fastq"), file("${dataset_id}.R2.fastq") into (cut_adapt_results1, cut_adapt_results2)
 	"""
@@ -114,8 +115,8 @@ TODO:
 */ 
 
 
-/*
-process align_reads {
+
+process align_reads1 {
 	
 	publishDir "${params.output}/aligned_reads_Results", mode: 'link'
 	
@@ -125,11 +126,60 @@ process align_reads {
 		set dataset_id, file("${dataset_id}_R1_fu.fastq"), file("${dataset_id}_R2_fu.fastq") from reconcile_reads_results2
 		
 	output:
-		set dataset_id, file('${dataset_id}_R2_fuh1.fastq') into align_results
+		set dataset_id, file("${dataset_id}_R1_fu_bt.sam"), file("${dataset_id}_R2_fu_bt.sam") into alignment_results
+		set dataset_id, file("${dataset_id}_R1_bt.log"), file("${dataset_id}_R2_bt.log") into bt_log
+		set dataset_id, file("${dataset_id}_R2_fuh.fastq"), file("${dataset_id}_R1_fuh.fastq") into host_filted_results
 		
 	"""
-	bowtie2 -x $btindex --local -q -U ${dataset_id}_R1_fu.fastq --sensitive --score-min C,${params.min_score},0 --time -p $params.num_cpu -S ${dataset_id}_R1_fu.fastq.${params.output_suffix}_bt.sam 2> ${dataset_id}_R1_fu.fastq.${parmas.output_suffix}_bt.log
-	$baseDir/bin/fasta_from_sam -f ${dataset_id}_R1_fu.fastq -r ${dataset_id}_R1_fu.fastq.${params.output_suffix}_bt.sam > ${dataset_id}_R1_fuh1.fastq
+	bowtie2 -x $params.btindex --local -q -U ${dataset_id}_R1_fu.fastq --sensitive --score-min C,${params.min_score},0 --time -p $params.num_cpu -S ${dataset_id}_R1_fu_bt.sam \
+	2> ${dataset_id}_R1_bt.log
+	
+	$baseDir/bin/fasta_from_sam -f ${dataset_id}_R1_fu.fastq -r ${dataset_id}_R1_fu_bt.sam > ${dataset_id}_R1_fuh1.fastq
+
 	$baseDir/bin/reconcile_read2_file ${dataset_id}_R1_fuh1.fastq ${dataset_id}_R2_fu.fastq f2 > ${dataset_id}_R2_fuh1.fastq
+	
+	bowtie2 -x $params.btindex --local -q -U ${dataset_id}_R2_fu.fastq --sensitive --score-min C,${params.min_score},0 --time -p $params.num_cpu -S ${dataset_id}_R2_fu_bt.sam \
+	2> ${dataset_id}_R2_bt.log
+
+	$baseDir/bin/fasta_from_sam -f ${dataset_id}_R2_fuh1.fastq -r ${dataset_id}_R2_fu_bt.sam > ${dataset_id}_R2_fuh.fastq
+
+	$baseDir/bin/reconcile_read2_file ${dataset_id}_R2_fuh.fastq ${dataset_id}_R1_fuh1.fastq > ${dataset_id}_R1_fuh.fastq
 	"""
-*/
+}	
+
+
+process runSPAdes {
+	
+	publishDir "${params.output}/SPAdes_Results", mode: 'link'
+	
+	tag { dataset_id }
+	
+	input:
+		set dataset_id, file("${dataset_id}_R2_fuh.fastq"), file("${dataset_id}_R1_fuh.fastq") from host_filted_results
+	
+	output:
+		set dataset_id, file("${dataset_id}.spades") into SPAdes_results
+		
+	"""
+	spades.py -o ${dataset_id}.spades --pe1-1 ${dataset_id}_R1_fuh.fastq --pe1-2 ${dataset_id}_R2_fuh.fastq -t 24 -m 150
+	"""
+}
+
+process filterContigs {
+	
+	publishDir "${params.output}/SPAdes_Results", mode: 'link'
+	
+	tag { dataset_id }
+	
+	input:
+		set dataset_id, file("${dataset_id}.spades") from SPAdes_results
+		
+	output:
+		set dataset_id, file("${dataset_id}_spade_contigs_gt_150.fa") into filtered_contig_fastas
+		
+	"""
+	$baseDir/bin/fasta_to_fasta ${dataset_id}.spades/contigs.fasta > ./${dataset_id}_spade_contigs.fa
+	
+	$baseDir/bin/filter_fasta_by_size -b 150 ${dataset_id}_spade_contigs.fa | $baseDir/bin/fasta_to_fasta >  ${dataset_id}_spade_contigs_gt_150.fa
+	"""
+}	
