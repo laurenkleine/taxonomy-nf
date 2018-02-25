@@ -128,7 +128,7 @@ process align_reads1 {
 	output:
 		set dataset_id, file("${dataset_id}_R1_fu_bt.sam"), file("${dataset_id}_R2_fu_bt.sam") into alignment_results
 		set dataset_id, file("${dataset_id}_R1_bt.log"), file("${dataset_id}_R2_bt.log") into bt_log
-		set dataset_id, file("${dataset_id}_R2_fuh.fastq"), file("${dataset_id}_R1_fuh.fastq") into host_filted_results
+		set dataset_id, file("${dataset_id}_R2_fuh.fastq"), file("${dataset_id}_R1_fuh.fastq") into (host_filted_results1, host_filted_results2)
 		
 	"""
 	bowtie2 -x $params.btindex --local -q -U ${dataset_id}_R1_fu.fastq --sensitive --score-min C,${params.min_score},0 --time -p $params.num_cpu -S ${dataset_id}_R1_fu_bt.sam \
@@ -155,7 +155,7 @@ process runSPAdes {
 	tag { dataset_id }
 	
 	input:
-		set dataset_id, file("${dataset_id}_R2_fuh.fastq"), file("${dataset_id}_R1_fuh.fastq") from host_filted_results
+		set dataset_id, file("${dataset_id}_R2_fuh.fastq"), file("${dataset_id}_R1_fuh.fastq") from host_filted_results1
 	
 	output:
 		set dataset_id, file("${dataset_id}.spades") into SPAdes_results
@@ -182,4 +182,65 @@ process filterContigs {
 	
 	$baseDir/bin/filter_fasta_by_size -b 150 ${dataset_id}_spade_contigs.fa | $baseDir/bin/fasta_to_fasta >  ${dataset_id}_spade_contigs_gt_150.fa
 	"""
+}		
+
+
+process contigBowtie {
+
+	publishDir "${params.output}/SPAdes_Results", mode: "link"
+	
+	tag { dataset_id }
+	
+	input:
+		set dataset_id, file("${dataset_id}_spade_contigs_gt_150.fa") from filtered_contig_fastas
+		set dataset_id, file("${dataset_id}_R2_fuh.fastq"), file("${dataset_id}_R1_fuh.fastq") from host_filted_results2
+		
+	
+	output:
+		set dataset_id, file("${dataset_id}_spade_contigs_gt_150_R1.sam"), file("${dataset_id}_spade_contigs_gt_150_R2.sam") into fuh_sam_results
+		set dataset_id, file("${dataset_id}_spade_contigs_gt_150_R1.bt_log"), file("${dataset_id}_spade_contigs_gt_150_R2.bt_log") into fuh_btlog_results
+	
+	"""
+	bowtie2-build ${dataset_id}_spade_contigs_gt_150.fa ${dataset_id}_spade_contigs_gt_150
+	bowtie2 -x ${dataset_id}_spade_contigs_gt_150 --local --score-min C,120,1 -q -U ${dataset_id}_R1_fuh.fastq -p 12 -S ${dataset_id}_spade_contigs_gt_150_R1.sam 2> ${dataset_id}_spade_contigs_gt_150_R1.bt_log
+	bowtie2 -x ${dataset_id}_spade_contigs_gt_150 --local --score-min C,120,1 -q -U ${dataset_id}_R2_fuh.fastq -p 12 -S ${dataset_id}_spade_contigs_gt_150_R2.sam 2> ${dataset_id}_spade_contigs_gt_150_R2.bt_log
+	"""
+}
+
+
+process tallySAMsubjects {
+
+	publishDir "${params.output}/SPAdes_Results", mode: "link"
+	
+	tag { dataset_id }
+
+	input:
+		set dataset_id, file("${dataset_id}_spade_contigs_gt_150_R1.sam"), file("${dataset_id}_spade_contigs_gt_150_R2.sam") from fuh_sam_results
+		
+	
+	output:
+		set dataset_id, file("${dataset_id}_spade_contigs_gt_150_R1.sam.subject_hits"), file("${dataset_id}_spade_contigs_gt_150_R2.sam.subject_hits") into sam_subject_hits_results
+	
+	"""
+	$baseDir/bin/tally_sam_subjects ${dataset_id}_spade_contigs_gt_150_R1.sam > ${dataset_id}_spade_contigs_gt_150_R1.sam.subject_hits
+	$baseDir/bin/tally_sam_subjects ${dataset_id}_spade_contigs_gt_150_R2.sam > ${dataset_id}_spade_contigs_gt_150_R2.sam.subject_hits
+	"""
 }	
+	
+
+
+/*
+	# create a composite sam file
+	cat ${f1}.${bt_index}.sam ${f2}.${bt_index}.sam > ${file_base}_R12_fuh.fastq.${bt_index}.sam
+	fasta_from_sam -r -f $f1 ${file_base}_R12_fuh.fastq.${bt_index}.sam > ${file_base}_R1_fuhs.fastq
+	fasta_from_sam -r -f $f2 ${file_base}_R12_fuh.fastq.${bt_index}.sam > ${file_base}_R2_fuhs.fastq
+
+   weights_file=${f1}.${bt_index}.sam.subject_hits
+
+   # *********************
+   # blastn contigs vs. nt
+   # *********************
+
+   f1=${file_base}_spade_contigs.fa
+*/	
+	
