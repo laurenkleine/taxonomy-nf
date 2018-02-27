@@ -128,7 +128,7 @@ process align_reads1 {
 	output:
 		set dataset_id, file("${dataset_id}_R1_fu_bt.sam"), file("${dataset_id}_R2_fu_bt.sam") into alignment_results
 		set dataset_id, file("${dataset_id}_R1_bt.log"), file("${dataset_id}_R2_bt.log") into bt_log
-		set dataset_id, file("${dataset_id}_R2_fuh.fastq"), file("${dataset_id}_R1_fuh.fastq") into (host_filted_results1, host_filted_results2)
+		set dataset_id, file("${dataset_id}_R2_fuh.fastq"), file("${dataset_id}_R1_fuh.fastq") into (host_filted_results1, host_filted_results2, host_filted_results3)
 		
 	"""
 	bowtie2 -x $params.btindex --local -q -U ${dataset_id}_R1_fu.fastq --sensitive --score-min C,${params.min_score},0 --time -p $params.num_cpu -S ${dataset_id}_R1_fu_bt.sam \
@@ -158,7 +158,7 @@ process runSPAdes {
 		set dataset_id, file("${dataset_id}_R2_fuh.fastq"), file("${dataset_id}_R1_fuh.fastq") from host_filted_results1
 	
 	output:
-		set dataset_id, file("${dataset_id}.spades") into SPAdes_results
+		set dataset_id, file("${dataset_id}.spades") into (SPAdes_results1, SPAdes_results2)
 		
 	"""
 	spades.py -o ${dataset_id}.spades --pe1-1 ${dataset_id}_R1_fuh.fastq --pe1-2 ${dataset_id}_R2_fuh.fastq -t 24 -m 150
@@ -172,7 +172,7 @@ process filterContigs {
 	tag { dataset_id }
 	
 	input:
-		set dataset_id, file("${dataset_id}.spades") from SPAdes_results
+		set dataset_id, file("${dataset_id}.spades") from SPAdes_results1
 		
 	output:
 		set dataset_id, file("${dataset_id}_spade_contigs_gt_150.fa") into filtered_contig_fastas
@@ -197,7 +197,7 @@ process contigBowtie {
 		
 	
 	output:
-		set dataset_id, file("${dataset_id}_spade_contigs_gt_150_R1.sam"), file("${dataset_id}_spade_contigs_gt_150_R2.sam") into fuh_sam_results
+		set dataset_id, file("${dataset_id}_spade_contigs_gt_150_R1.sam"), file("${dataset_id}_spade_contigs_gt_150_R2.sam") into (fuh_sam_results1, fuh_sam_results2)
 		set dataset_id, file("${dataset_id}_spade_contigs_gt_150_R1.bt_log"), file("${dataset_id}_spade_contigs_gt_150_R2.bt_log") into fuh_btlog_results
 	
 	"""
@@ -215,11 +215,11 @@ process tallySAMsubjects {
 	tag { dataset_id }
 
 	input:
-		set dataset_id, file("${dataset_id}_spade_contigs_gt_150_R1.sam"), file("${dataset_id}_spade_contigs_gt_150_R2.sam") from fuh_sam_results
+		set dataset_id, file("${dataset_id}_spade_contigs_gt_150_R1.sam"), file("${dataset_id}_spade_contigs_gt_150_R2.sam") from fuh_sam_results1
 		
 	
 	output:
-		set dataset_id, file("${dataset_id}_spade_contigs_gt_150_R1.sam.subject_hits"), file("${dataset_id}_spade_contigs_gt_150_R2.sam.subject_hits") into sam_subject_hits_results
+		set dataset_id, file("${dataset_id}_spade_contigs_gt_150_R1.sam.subject_hits"), file("${dataset_id}_spade_contigs_gt_150_R2.sam.subject_hits") into (sam_subject_hits_results)
 	
 	"""
 	$baseDir/bin/tally_sam_subjects ${dataset_id}_spade_contigs_gt_150_R1.sam > ${dataset_id}_spade_contigs_gt_150_R1.sam.subject_hits
@@ -229,18 +229,91 @@ process tallySAMsubjects {
 	
 
 
-/*
-	# create a composite sam file
-	cat ${f1}.${bt_index}.sam ${f2}.${bt_index}.sam > ${file_base}_R12_fuh.fastq.${bt_index}.sam
-	fasta_from_sam -r -f $f1 ${file_base}_R12_fuh.fastq.${bt_index}.sam > ${file_base}_R1_fuhs.fastq
-	fasta_from_sam -r -f $f2 ${file_base}_R12_fuh.fastq.${bt_index}.sam > ${file_base}_R2_fuhs.fastq
+process compositeSAMfile {
 
-   weights_file=${f1}.${bt_index}.sam.subject_hits
-
-   # *********************
-   # blastn contigs vs. nt
-   # *********************
-
-   f1=${file_base}_spade_contigs.fa
-*/	
+	publishDir "${params.output}/SPAdes_Results", mode: "link"
 	
+	tag {dataset_id }
+	
+	input:
+		set dataset_id, file("${dataset_id}_spade_contigs_gt_150_R1.sam"), file("${dataset_id}_spade_contigs_gt_150_R2.sam") from fuh_sam_results2
+		set dataset_id, file("${dataset_id}_R2_fuh.fastq"), file("${dataset_id}_R1_fuh.fastq") from host_filted_results3
+		
+		
+	output:
+		set dataset_id, file("${dataset_id}_R1_fuhs.fastq"), file("${dataset_id}_R2_fuhs.fastq") into compositeSAMfile_results
+		
+	"""
+	cat ${dataset_id}_spade_contigs_gt_150_R1.sam ${dataset_id}_spade_contigs_gt_150_R2.sam > ${dataset_id}_R12_fuh.fastq.sam
+	$baseDir/bin/fasta_from_sam -r -f ${dataset_id}_R1_fuh.fastq ${dataset_id}_R12_fuh.fastq.sam > ${dataset_id}_R1_fuhs.fastq
+	$baseDir/bin/fasta_from_sam -r -f ${dataset_id}_R2_fuh.fastq ${dataset_id}_R12_fuh.fastq.sam > ${dataset_id}_R2_fuhs.fastq
+	"""
+}
+
+params.db = "/home/databases/nr_nt/nt"
+
+/*
+  weights_file=${f1}.${bt_index}.sam.subject_hits
+  f1=${dataset_id}_spade_contigs.fa
+*/
+
+process BLASTcontigs_vs_nt {
+	
+	publishDir "${params.output}/SPAdes_Results", mode: "link"
+	
+	tag { dataset_id }
+	
+	input:
+		set dataset_id, file("${dataset_id}.spades") from SPAdes_results2
+	
+	output:
+		set dataset_id, file("${dataset_id}.bn_nt") into (BLASTresults1, BLASTresults2)
+		
+	"""
+	$baseDir/bin/fasta_to_fasta ${dataset_id}.spades/contigs.fasta > ./${dataset_id}_spade_contigs.fa
+	
+	blastn -query ${dataset_id}_spade_contigs.fa -db $params.db -num_threads 24 -evalue 1e-8 -task megablast -outfmt 6 | $baseDir/bin/consolidate_blast_output > ${dataset_id}.bn_nt
+	"""
+}
+
+/* these two scripts are having issues with the output of the BLASTcontigs_vs_nt process
+	-check the 'fasta_from_blast' and 'tally_hits_universal.pl' scripts
+	
+process blastn_vs_nt_misses {
+	
+	publishDir "${params.output}/SPAdes_Results", mode: "link"
+	
+	tag { dataset_id }
+	
+	input:
+		set dataset_id, file("${dataset_id}.bn_nt") from BLASTresults1
+	
+	output:
+		set dataset_id, file("${dataset_id}_spade_contigs_n.fa") into blastn_vs_nt_misses_results
+	
+	"""
+	$baseDir/bin/fasta_from_blast -r ${dataset_id}.bn_nt > ${dataset_id}_spade_contigs_n.fa
+	"""
+} 		
+
+process taxonomic_Assessment_nt {
+
+	publishDir "${params.output}/SPAdes_Results/Taxonomic_assessment_nt-based_Results", mode: "link"
+	
+	tag { dataset_id }
+	
+	input:
+		set dataset_id, file("${dataset_id}_spade_contigs_gt_150_R1.sam.subject_hits"), file("${dataset_id}_spade_contigs_gt_150_R2.sam.subject_hits") from (sam_subject_hits_results)
+		set dataset_id, file("${dataset_id}.bn_nt") from BLASTresults2
+		
+	output:
+		set dataset_id, file("${dataset_id}.bn_nt.tally"), file("${dataset_id}.bn_nt.desc_tally"), file("${dataset_id}.bn_nt.tab_tree_tally") into tally_blastn_vs_nt_hits_results
+	
+	"""
+	$baseDir/bin/tally_hits_universal.pl -lca -w ${dataset_id}_spade_contigs_gt_150_R1.sam.subject_hits ${dataset_id}.bn_nt > ${dataset_id}.bn_nt.tally
+	$baseDir/bin/tally_hits_universal.pl -lca -w ${dataset_id}_spade_contigs_gt_150_R1.sam.subject_hits -d -o desc_tally ${dataset_id}.bn_nt > ${dataset_id}.bn_nt.desc_tally
+	$baseDir/bin/tally_hits_universal.pl -lca -w ${dataset_id}_spade_contigs_gt_150_R1.sam.subject_hits -t -ti -o tab_tree_tally ${dataset_id}.bn_nt > ${dataset_id}.bn_nt.tab_tree_tally
+	"""
+}	
+
+*/
