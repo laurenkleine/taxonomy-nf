@@ -6,6 +6,8 @@ params.btindex = "/home/databases/croc/croc_genome" // Location of bowtie2 index
 params.output_suffix = "croc_genome" // output suffix of files created
 params.num_cpu = "12" // num_cpu for running bowtie2
 params.min_score = "60" // minimum alignment score -a score of 60 corresponds to approximately a perfect match over 30 nt
+params.db = "/home/databases/nr_nt/nt"
+params.dmd_index = "/home/databases/nr_nt/nr.dmnd" //this won't work in pipeline, this is going to be an issue'
 
 Channel
 	.fromFilePairs( params.reads, flat: true) /*When true the matching files are produced as sole elements in the emitted tuples*/
@@ -158,31 +160,15 @@ process runSPAdes {
 		set dataset_id, file("${dataset_id}_R2_fuh.fastq"), file("${dataset_id}_R1_fuh.fastq") from host_filted_results1
 	
 	output:
-		set dataset_id, file("${dataset_id}.spades") into (SPAdes_results1, SPAdes_results2)
+		set dataset_id, file("${dataset_id}.spades") into SPAdesDir
+		set dataset_id, file("${dataset_id}_spade_contigs.fa") into (SPAdes_results1, SPAdes_results2, SPAdes_results3, SPAdes_results4)
 		
 	"""
 	spades.py -o ${dataset_id}.spades --pe1-1 ${dataset_id}_R1_fuh.fastq --pe1-2 ${dataset_id}_R2_fuh.fastq -t 24 -m 150
+	
+	$baseDir/bin/fasta_to_fasta ${dataset_id}.spades/contigs.fasta > ./${dataset_id}_spade_contigs.fa
 	"""
 }
-
-process filterContigs {
-	
-	publishDir "${params.output}/SPAdes_Results", mode: 'link'
-	
-	tag { dataset_id }
-	
-	input:
-		set dataset_id, file("${dataset_id}.spades") from SPAdes_results1
-		
-	output:
-		set dataset_id, file("${dataset_id}_spade_contigs_gt_150.fa") into filtered_contig_fastas
-		
-	"""
-	$baseDir/bin/fasta_to_fasta ${dataset_id}.spades/contigs.fasta > ./${dataset_id}_spade_contigs.fa
-	
-	$baseDir/bin/filter_fasta_by_size -b 150 ${dataset_id}_spade_contigs.fa | $baseDir/bin/fasta_to_fasta >  ${dataset_id}_spade_contigs_gt_150.fa
-	"""
-}		
 
 
 process contigBowtie {
@@ -192,18 +178,18 @@ process contigBowtie {
 	tag { dataset_id }
 	
 	input:
-		set dataset_id, file("${dataset_id}_spade_contigs_gt_150.fa") from filtered_contig_fastas
+		set dataset_id, file("${dataset_id}_spade_contigs.fa") from (SPAdes_results1)
 		set dataset_id, file("${dataset_id}_R2_fuh.fastq"), file("${dataset_id}_R1_fuh.fastq") from host_filted_results2
 		
 	
 	output:
-		set dataset_id, file("${dataset_id}_spade_contigs_gt_150_R1.sam"), file("${dataset_id}_spade_contigs_gt_150_R2.sam") into (fuh_sam_results1, fuh_sam_results2)
-		set dataset_id, file("${dataset_id}_spade_contigs_gt_150_R1.bt_log"), file("${dataset_id}_spade_contigs_gt_150_R2.bt_log") into fuh_btlog_results
+		set dataset_id, file("${dataset_id}_spade_contigs_R1.sam"), file("${dataset_id}_spade_contigs_R2.sam") into (fuh_sam_results1, fuh_sam_results2)
+		set dataset_id, file("${dataset_id}_spade_contigs_R1.bt_log"), file("${dataset_id}_spade_contigs_R2.bt_log") into fuh_btlog_results
 	
 	"""
-	bowtie2-build ${dataset_id}_spade_contigs_gt_150.fa ${dataset_id}_spade_contigs_gt_150
-	bowtie2 -x ${dataset_id}_spade_contigs_gt_150 --local --score-min C,120,1 -q -U ${dataset_id}_R1_fuh.fastq -p 12 -S ${dataset_id}_spade_contigs_gt_150_R1.sam 2> ${dataset_id}_spade_contigs_gt_150_R1.bt_log
-	bowtie2 -x ${dataset_id}_spade_contigs_gt_150 --local --score-min C,120,1 -q -U ${dataset_id}_R2_fuh.fastq -p 12 -S ${dataset_id}_spade_contigs_gt_150_R2.sam 2> ${dataset_id}_spade_contigs_gt_150_R2.bt_log
+	bowtie2-build ${dataset_id}_spade_contigs.fa ${dataset_id}_spade_contigs
+	bowtie2 -x ${dataset_id}_spade_contigs --local --score-min C,120,1 -q -U ${dataset_id}_R1_fuh.fastq -p 12 -S ${dataset_id}_spade_contigs_R1.sam 2> ${dataset_id}_spade_contigs_R1.bt_log
+	bowtie2 -x ${dataset_id}_spade_contigs --local --score-min C,120,1 -q -U ${dataset_id}_R2_fuh.fastq -p 12 -S ${dataset_id}_spade_contigs_R2.sam 2> ${dataset_id}_spade_contigs_R2.bt_log
 	"""
 }
 
@@ -215,20 +201,19 @@ process tallySAMsubjects {
 	tag { dataset_id }
 
 	input:
-		set dataset_id, file("${dataset_id}_spade_contigs_gt_150_R1.sam"), file("${dataset_id}_spade_contigs_gt_150_R2.sam") from fuh_sam_results1
+		set dataset_id, file("${dataset_id}_spade_contigs_R1.sam"), file("${dataset_id}_spade_contigs_R2.sam") from (fuh_sam_results1)
 		
 	
 	output:
-		set dataset_id, file("${dataset_id}_spade_contigs_gt_150_R1.sam.subject_hits"), file("${dataset_id}_spade_contigs_gt_150_R2.sam.subject_hits") into (sam_subject_hits_results)
+		set dataset_id, file("${dataset_id}_spade_contigs_R1.sam.subject_hits") into (sam_subject_hits_resultsR1_1, sam_subject_hits_resultsR1_2)
+		set dataset_id, file("${dataset_id}_spade_contigs_R2.sam.subject_hits") into (sam_subject_hits_resultsR2)
 	
 	"""
-	$baseDir/bin/tally_sam_subjects ${dataset_id}_spade_contigs_gt_150_R1.sam > ${dataset_id}_spade_contigs_gt_150_R1.sam.subject_hits
-	$baseDir/bin/tally_sam_subjects ${dataset_id}_spade_contigs_gt_150_R2.sam > ${dataset_id}_spade_contigs_gt_150_R2.sam.subject_hits
+	$baseDir/bin/tally_sam_subjects ${dataset_id}_spade_contigs_R1.sam > ${dataset_id}_spade_contigs_R1.sam.subject_hits
+	$baseDir/bin/tally_sam_subjects ${dataset_id}_spade_contigs_R2.sam > ${dataset_id}_spade_contigs_R2.sam.subject_hits
 	"""
 }	
 	
-
-
 process compositeSAMfile {
 
 	publishDir "${params.output}/SPAdes_Results", mode: "link"
@@ -236,7 +221,7 @@ process compositeSAMfile {
 	tag {dataset_id }
 	
 	input:
-		set dataset_id, file("${dataset_id}_spade_contigs_gt_150_R1.sam"), file("${dataset_id}_spade_contigs_gt_150_R2.sam") from fuh_sam_results2
+		set dataset_id, file("${dataset_id}_spade_contigs_R1.sam"), file("${dataset_id}_spade_contigs_R2.sam") from (fuh_sam_results2)
 		set dataset_id, file("${dataset_id}_R2_fuh.fastq"), file("${dataset_id}_R1_fuh.fastq") from host_filted_results3
 		
 		
@@ -244,18 +229,12 @@ process compositeSAMfile {
 		set dataset_id, file("${dataset_id}_R1_fuhs.fastq"), file("${dataset_id}_R2_fuhs.fastq") into compositeSAMfile_results
 		
 	"""
-	cat ${dataset_id}_spade_contigs_gt_150_R1.sam ${dataset_id}_spade_contigs_gt_150_R2.sam > ${dataset_id}_R12_fuh.fastq.sam
+	cat ${dataset_id}_spade_contigs_R1.sam ${dataset_id}_spade_contigs_R2.sam > ${dataset_id}_R12_fuh.fastq.sam
 	$baseDir/bin/fasta_from_sam -r -f ${dataset_id}_R1_fuh.fastq ${dataset_id}_R12_fuh.fastq.sam > ${dataset_id}_R1_fuhs.fastq
 	$baseDir/bin/fasta_from_sam -r -f ${dataset_id}_R2_fuh.fastq ${dataset_id}_R12_fuh.fastq.sam > ${dataset_id}_R2_fuhs.fastq
 	"""
+	
 }
-
-params.db = "/home/databases/nr_nt/nt"
-
-/*
-  weights_file=${f1}.${bt_index}.sam.subject_hits
-  f1=${dataset_id}_spade_contigs.fa
-*/
 
 process BLASTcontigs_vs_nt {
 	
@@ -264,56 +243,116 @@ process BLASTcontigs_vs_nt {
 	tag { dataset_id }
 	
 	input:
-		set dataset_id, file("${dataset_id}.spades") from SPAdes_results2
+		set dataset_id, file("${dataset_id}_spade_contigs.fa") from (SPAdes_results2)
 	
 	output:
-		set dataset_id, file("${dataset_id}.bn_nt") into (BLASTresults1, BLASTresults2)
+		set dataset_id, file("${dataset_id}.fa.bn_nt") into (BLASTresults1, BLASTresults2)
+		set dataset_id, file("${dataset_id}_spade_contigs_n.fa") into (BLASTresults)
 		
 	"""
-	$baseDir/bin/fasta_to_fasta ${dataset_id}.spades/contigs.fasta > ./${dataset_id}_spade_contigs.fa
+	blastn -query ${dataset_id}_spade_contigs.fa -db $params.db -num_threads 24 -evalue 1e-8 -task megablast -outfmt 6 | $baseDir/bin/consolidate_blast_output > ${dataset_id}.fa.bn_nt
 	
-	blastn -query ${dataset_id}_spade_contigs.fa -db $params.db -num_threads 24 -evalue 1e-8 -task megablast -outfmt 6 | $baseDir/bin/consolidate_blast_output > ${dataset_id}.bn_nt
+	$baseDir/bin/fasta_from_blast -f ${dataset_id}_spade_contigs.fa -r ${dataset_id}.fa.bn_nt > ${dataset_id}_spade_contigs_n.fa
 	"""
 }
 
-/* these two scripts are having issues with the output of the BLASTcontigs_vs_nt process
-	-check the 'fasta_from_blast' and 'tally_hits_universal.pl' scripts
+process taxonomic_Assessment_nt {
+
+	publishDir "${params.output}/SPAdes_Results/nt_tally_results", mode: "link"
 	
-process blastn_vs_nt_misses {
+	tag { dataset_id }
+	
+	input:
+		set dataset_id, file("${dataset_id}_spade_contigs_R1.sam.subject_hits") from (sam_subject_hits_resultsR1_1)
+		set dataset_id, file("${dataset_id}.fa.bn_nt") from BLASTresults1
+		
+	output:
+		set dataset_id, file("${dataset_id}.fa.bn_nt.tally") into bn_nt_tally_results
+		set dataset_id, file("${dataset_id}.bn_nt.desc_tally") into desc_tally_results
+		set dataset_id, file("${dataset_id}.bn_nt.tab_tree_tally") into tab_tree_tally_results
+	
+	"""
+	$baseDir/bin/tally_hits_universal.pl -w ${dataset_id}_spade_contigs_R1.sam.subject_hits ${dataset_id}.fa.bn_nt > ${dataset_id}.fa.bn_nt.tally
+	$baseDir/bin/tally_hits_universal.pl -w ${dataset_id}_spade_contigs_R1.sam.subject_hits -d -o desc_tally ${dataset_id}.fa.bn_nt > ${dataset_id}.bn_nt.desc_tally
+	$baseDir/bin/tally_hits_universal.pl -w ${dataset_id}_spade_contigs_R1.sam.subject_hits -t -ti -o tab_tree_tally ${dataset_id}.fa.bn_nt > ${dataset_id}.bn_nt.tab_tree_tally
+	"""
+}	
+
+/* my $tax_dir = "/home/databases/NCBI_Taxonomy"; */
+
+process virusDerivedReads_nt {
+
+	publishDir "${params.output}/SPAdes_Results/nt_tally_results", mode: "link"
+	
+	tag { dataset_id }
+	
+	input:
+		set dataset_id, file("${dataset_id}_spade_contigs.fa") from (SPAdes_results3)
+		set dataset_id, file("${dataset_id}.fa.bn_nt") from BLASTresults2
+	
+	output:
+		set dataset_id, file('*.fa') into reads_results
+		
+	"""
+	$baseDir/bin/distribute_fasta_by_blast_taxid.pl -v ${dataset_id}_spade_contigs.fa ${dataset_id}.fa.bn_nt
+	"""
+}
+	
+process runDIAMOND {
 	
 	publishDir "${params.output}/SPAdes_Results", mode: "link"
 	
 	tag { dataset_id }
 	
 	input:
-		set dataset_id, file("${dataset_id}.bn_nt") from BLASTresults1
+		set dataset_id, file("${dataset_id}_spade_contigs_n.fa") from (BLASTresults)
 	
 	output:
-		set dataset_id, file("${dataset_id}_spade_contigs_n.fa") into blastn_vs_nt_misses_results
-	
+		set dataset_id, file("${dataset_id}_spade_contigs_n.fa.dmd_nr") into runDIAMOND_results1, runDIAMOND_results2
+		set dataset_id, file("${dataset_id}_spade_contigs_nn.fa") into fastaDIAMOND_results1
+		
 	"""
-	$baseDir/bin/fasta_from_blast -r ${dataset_id}.bn_nt > ${dataset_id}_spade_contigs_n.fa
+	diamond blastx --db /home/databases/nr_nt/nr.dmnd --threads 16 --out ${dataset_id}_spade_contigs_n.fa.dmd_nr --outfmt 6 --query ${dataset_id}_spade_contigs_n.fa --unal 0 --evalue 1e-3
+	$baseDir/bin/fasta_from_blast -r -f ${dataset_id}_spade_contigs_n.fa ${dataset_id}_spade_contigs_n.fa.dmd_nr > ${dataset_id}_spade_contigs_nn.fa
 	"""
-} 		
+}
 
-process taxonomic_Assessment_nt {
+process taxonomic_Assessment_nr {
 
-	publishDir "${params.output}/SPAdes_Results/Taxonomic_assessment_nt-based_Results", mode: "link"
+	publishDir "${params.output}/SPAdes_Results/nr_tally_results", mode: "link"
 	
 	tag { dataset_id }
 	
 	input:
-		set dataset_id, file("${dataset_id}_spade_contigs_gt_150_R1.sam.subject_hits"), file("${dataset_id}_spade_contigs_gt_150_R2.sam.subject_hits") from (sam_subject_hits_results)
-		set dataset_id, file("${dataset_id}.bn_nt") from BLASTresults2
+		set dataset_id, file("${dataset_id}_spade_contigs_R1.sam.subject_hits") from (sam_subject_hits_resultsR1_2)
+		set dataset_id, file("${dataset_id}_spade_contigs_n.fa.dmd_nr") from runDIAMOND_results1
 		
 	output:
-		set dataset_id, file("${dataset_id}.bn_nt.tally"), file("${dataset_id}.bn_nt.desc_tally"), file("${dataset_id}.bn_nt.tab_tree_tally") into tally_blastn_vs_nt_hits_results
+		set dataset_id, file("${dataset_id}.dmd_nr.tally") into nr_tally_results
+		set dataset_id, file("${dataset_id}.dmd_nr.desc_tally") into nr_desc_tally_results
+		set dataset_id, file("${dataset_id}.dmd_nr.tab_tree_tally") into nr_tab_tree_tally_results
+		
+	"""
+	$baseDir/bin/tally_hits_universal.pl -w ${dataset_id}_spade_contigs_R1.sam.subject_hits ${dataset_id}_spade_contigs_n.fa.dmd_nr > ${dataset_id}.dmd_nr.tally
+	$baseDir/bin/tally_hits_universal.pl -w ${dataset_id}_spade_contigs_R1.sam.subject_hits -d -o desc_tally ${dataset_id}_spade_contigs_n.fa.dmd_nr > ${dataset_id}.dmd_nr.desc_tally
+	$baseDir/bin/tally_hits_universal.pl -w ${dataset_id}_spade_contigs_R1.sam.subject_hits -t -ti -o tab_tree_tally ${dataset_id}_spade_contigs_n.fa.dmd_nr > ${dataset_id}.dmd_nr.tab_tree_tally
+	"""
+}
+
+process virusDerivedReads_nr {
+
+	publishDir "${params.output}/SPAdes_Results/nr_tally_results", mode: "link"
+	
+	tag { dataset_id }
+	
+	input:
+		set dataset_id, file("${dataset_id}_spade_contigs.fa") from (SPAdes_results4)
+		set dataset_id, file("${dataset_id}_spade_contigs_n.fa.dmd_nr") from runDIAMOND_results2
+	
+	output:
+		set dataset_id, file("*.fa") into final_channel
 	
 	"""
-	$baseDir/bin/tally_hits_universal.pl -lca -w ${dataset_id}_spade_contigs_gt_150_R1.sam.subject_hits ${dataset_id}.bn_nt > ${dataset_id}.bn_nt.tally
-	$baseDir/bin/tally_hits_universal.pl -lca -w ${dataset_id}_spade_contigs_gt_150_R1.sam.subject_hits -d -o desc_tally ${dataset_id}.bn_nt > ${dataset_id}.bn_nt.desc_tally
-	$baseDir/bin/tally_hits_universal.pl -lca -w ${dataset_id}_spade_contigs_gt_150_R1.sam.subject_hits -t -ti -o tab_tree_tally ${dataset_id}.bn_nt > ${dataset_id}.bn_nt.tab_tree_tally
+	$baseDir/bin/distribute_fasta_by_blast_taxid.pl -v ${dataset_id}_spade_contigs.fa ${dataset_id}_spade_contigs_n.fa.dmd_nr
 	"""
-}	
-
-*/
+}
