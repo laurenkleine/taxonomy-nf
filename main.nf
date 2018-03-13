@@ -1,13 +1,16 @@
 #!/usr/bin/env nextflow
 
-params.output = "./test" // Output subdirectory
-params.reads = "/home/laurenrk/projects/nexus/data/*_R{1,2}.fastq" // Location of forward and reverse read pairs /*  sed 's/\/1*$/ 1/g' SRR532663_1.fastq */
-params.btindex = "/home/databases/croc/croc_genome" // Location of bowtie2 index of cow genome
-params.output_suffix = "croc_genome" // output suffix of files created
-params.num_cpu = "12" // num_cpu for running bowtie2
-params.min_score = "60" // minimum alignment score -a score of 60 corresponds to approximately a perfect match over 30 nt
-params.db = "/home/databases/nr_nt/nt"
-params.dmd_index = "/home/databases/nr_nt/nr.dmnd" //this won't work in pipeline, this is going to be an issue'
+
+btindex = params.btindex
+
+num_cpu = params.num_cpu
+min_score = params.min_score
+
+db = params.db
+
+/* fix DIAMOND index to work correctly */
+
+
 
 Channel
 	.fromFilePairs( params.reads, flat: true) /*When true the matching files are produced as sole elements in the emitted tuples*/
@@ -19,7 +22,7 @@ Channel
 
 process RunPreFastQC {
 	
-	publishDir "${params.output}/FastQCResults_Pre", mode: 'move'
+	publishDir "${params.output}/FastQCResults/Pre", mode: 'move'
 	
 	tag { dataset_id }
 	
@@ -38,7 +41,7 @@ process RunPreFastQC {
 
 process RunCutAdapt {
 	
-	publishDir "${params.output}/RunCutAdapt", mode: 'link'
+	publishDir "${params.output}/CutAdaptResults", mode: 'link'
 	
 	tag { dataset_id }
 	
@@ -92,7 +95,7 @@ process reconcile_reads {
 
 process RunPostFastQC {
 	
-	publishDir "${params.output}/FastQCResults_Post", mode: 'move'
+	publishDir "${params.output}/FastQCResults/Post", mode: 'move'
 
 	tag { dataset_id }
 
@@ -109,18 +112,10 @@ process RunPostFastQC {
 	"""
 }
 
-/*
-TODO:
-*write align_reads process
-*write check input process
-*maybe write check_single_or_paired process
-*/ 
 
-
-
-process align_reads1 {
+process runBowtie2 {
 	
-	publishDir "${params.output}/aligned_reads_Results", mode: 'link'
+	publishDir "${params.output}/Bowtie2_Results", mode: 'link'
 	
 	tag { dataset_id }
 	
@@ -133,14 +128,14 @@ process align_reads1 {
 		set dataset_id, file("${dataset_id}_R2_fuh.fastq"), file("${dataset_id}_R1_fuh.fastq") into (host_filted_results1, host_filted_results2, host_filted_results3)
 		
 	"""
-	bowtie2 -x $params.btindex --local -q -U ${dataset_id}_R1_fu.fastq --sensitive --score-min C,${params.min_score},0 --time -p $params.num_cpu -S ${dataset_id}_R1_fu_bt.sam \
+	bowtie2 -x ${btindex} --local -q -U ${dataset_id}_R1_fu.fastq --sensitive --score-min C,${min_score},0 --time -p ${num_cpu} -S ${dataset_id}_R1_fu_bt.sam \
 	2> ${dataset_id}_R1_bt.log
 	
 	$baseDir/bin/fasta_from_sam -f ${dataset_id}_R1_fu.fastq -r ${dataset_id}_R1_fu_bt.sam > ${dataset_id}_R1_fuh1.fastq
 
 	$baseDir/bin/reconcile_read2_file ${dataset_id}_R1_fuh1.fastq ${dataset_id}_R2_fu.fastq f2 > ${dataset_id}_R2_fuh1.fastq
 	
-	bowtie2 -x $params.btindex --local -q -U ${dataset_id}_R2_fu.fastq --sensitive --score-min C,${params.min_score},0 --time -p $params.num_cpu -S ${dataset_id}_R2_fu_bt.sam \
+	bowtie2 -x ${btindex} --local -q -U ${dataset_id}_R2_fu.fastq --sensitive --score-min C,${min_score},0 --time -p ${num_cpu} -S ${dataset_id}_R2_fu_bt.sam \
 	2> ${dataset_id}_R2_bt.log
 
 	$baseDir/bin/fasta_from_sam -f ${dataset_id}_R2_fuh1.fastq -r ${dataset_id}_R2_fu_bt.sam > ${dataset_id}_R2_fuh.fastq
@@ -173,7 +168,7 @@ process runSPAdes {
 
 process contigBowtie {
 
-	publishDir "${params.output}/SPAdes_Results", mode: "link"
+	publishDir "${params.output}/contigBowtie_Results", mode: "link"
 	
 	tag { dataset_id }
 	
@@ -196,7 +191,7 @@ process contigBowtie {
 
 process tallySAMsubjects {
 
-	publishDir "${params.output}/SPAdes_Results", mode: "link"
+	publishDir "${params.output}/tallySAMsubjects_Results", mode: "link"
 	
 	tag { dataset_id }
 
@@ -216,7 +211,7 @@ process tallySAMsubjects {
 	
 process compositeSAMfile {
 
-	publishDir "${params.output}/SPAdes_Results", mode: "link"
+	publishDir "${params.output}/compositeSAMfile_Results", mode: "link"
 	
 	tag {dataset_id }
 	
@@ -238,7 +233,7 @@ process compositeSAMfile {
 
 process BLASTcontigs_vs_nt {
 	
-	publishDir "${params.output}/SPAdes_Results", mode: "link"
+	publishDir "${params.output}/BLAST_Results", mode: "link"
 	
 	tag { dataset_id }
 	
@@ -250,7 +245,7 @@ process BLASTcontigs_vs_nt {
 		set dataset_id, file("${dataset_id}_spade_contigs_n.fa") into (BLASTresults)
 		
 	"""
-	blastn -query ${dataset_id}_spade_contigs.fa -db $params.db -num_threads 24 -evalue 1e-8 -task megablast -outfmt 6 | $baseDir/bin/consolidate_blast_output > ${dataset_id}.fa.bn_nt
+	blastn -query ${dataset_id}_spade_contigs.fa -db ${db} -num_threads 24 -evalue 1e-8 -task megablast -outfmt 6 | $baseDir/bin/consolidate_blast_output > ${dataset_id}.fa.bn_nt
 	
 	$baseDir/bin/fasta_from_blast -f ${dataset_id}_spade_contigs.fa -r ${dataset_id}.fa.bn_nt > ${dataset_id}_spade_contigs_n.fa
 	"""
@@ -258,7 +253,7 @@ process BLASTcontigs_vs_nt {
 
 process taxonomic_Assessment_nt {
 
-	publishDir "${params.output}/SPAdes_Results/nt_tally_results", mode: "link"
+	publishDir "${params.output}/nt_tally_Results", mode: "link"
 	
 	tag { dataset_id }
 	
@@ -282,7 +277,7 @@ process taxonomic_Assessment_nt {
 
 process virusDerivedReads_nt {
 
-	publishDir "${params.output}/SPAdes_Results/nt_tally_results", mode: "link"
+	publishDir "${params.output}/nt_tally_Results", mode: "link"
 	
 	tag { dataset_id }
 	
@@ -300,7 +295,7 @@ process virusDerivedReads_nt {
 	
 process runDIAMOND {
 	
-	publishDir "${params.output}/SPAdes_Results", mode: "link"
+	publishDir "${params.output}/DIAMOND_Results", mode: "link"
 	
 	tag { dataset_id }
 	
@@ -319,7 +314,7 @@ process runDIAMOND {
 
 process taxonomic_Assessment_nr {
 
-	publishDir "${params.output}/SPAdes_Results/nr_tally_results", mode: "link"
+	publishDir "${params.output}/nr_tally_Results", mode: "link"
 	
 	tag { dataset_id }
 	
@@ -341,7 +336,7 @@ process taxonomic_Assessment_nr {
 
 process virusDerivedReads_nr {
 
-	publishDir "${params.output}/SPAdes_Results/nr_tally_results", mode: "link"
+	publishDir "${params.output}/nr_tally_Results", mode: "link"
 	
 	tag { dataset_id }
 	
