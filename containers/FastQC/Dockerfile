@@ -22,4 +22,4 @@ RUN cd /usr/local && \
 	unzip /tmp/${ZIP_FASTQC} && \
 	chmod 755 /usr/local/FastQC/fastqc && \
 	ln -s /usr/local/FastQC/fastqc /usr/local/bin/fastqc && \
-	rm /tmp/${FASTQC_ZIP}
+	rm /tmp/${ZIP_FASTQC}
