@@ -10,8 +10,10 @@ LABEL software="FASTQC" \
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-	openjdk-7-jre \
-	unzip \
+    openjdk-7-jre \
+    perl \
+    unzip \
+    zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
 ENV ZIP_FASTQC fastqc_v0.11.5.zip
