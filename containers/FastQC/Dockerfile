@@ -1,4 +1,4 @@
-FROM debian:jessie-slim
+FROM ubuntu:latest
 
 MAINTAINER Lauren Kleine <laurenrk@rams.colostate.edu>
 
@@ -8,20 +8,20 @@ LABEL software="FASTQC" \
 	  website="http://www.bioinformatics.babraham.ac.uk/projects/fastqc/"
 
 
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    openjdk-7-jre \
-    perl \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    ca-certificates \
     unzip \
-    zlib1g-dev \
+    wget \
     && rm -rf /var/lib/apt/lists/*
 
-ENV ZIP_FASTQC fastqc_v0.11.5.zip
+ENV TMP="/tmp" \
+	FASTQC_ZIP="fastqc_v0.11.5.zip"
 
-ADD http://www.bioinformatics.babraham.ac.uk/projects/fastqc/${FASTQC_ZIP} /tmp/
 
-RUN cd /usr/local && \
-	unzip /tmp/${ZIP_FASTQC} && \
-	chmod 755 /usr/local/FastQC/fastqc && \
-	ln -s /usr/local/FastQC/fastqc /usr/local/bin/fastqc && \
-	rm /tmp/${ZIP_FASTQC}
+RUN wget http://www.bioinformatics.babraham.ac.uk/projects/fastqc/$FASTQC_ZIP -O $TMP/$FASTQC_ZIP && \
+  unzip - $TMP/$FASTQC_ZIP -d $TMP && \
+  rm $TMP/$FASTQC_ZIP && \
+  cd $TMP/FastQC && \
+  chmod 755 fastqc && \
+  ln -s $TMP/FastQC/fastqc /usr/local/bin/fastqc
