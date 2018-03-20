@@ -1,5 +1,6 @@
 #!/usr/bin/env nextflow
 
+min_len = params.min_len
 
 btindex = params.btindex
 
@@ -22,7 +23,7 @@ Channel
 
 process RunPreFastQC {
 	
-	publishDir "${params.output}/FastQCResults/Pre", mode: 'move'
+	publishDir "${params.output}/FastQCResults/Pre", mode: 'link'
 	
 	tag { dataset_id }
 	
@@ -50,7 +51,7 @@ process RunCutAdapt {
 	output:
 		set dataset_id, file("${dataset_id}.R1.fastq"), file("${dataset_id}.R2.fastq") into (cut_adapt_results1, cut_adapt_results2)
 	"""
-	cutadapt -a AGATCGGAAGAGC -A AGATCGGAAGAGC -g GCTCTTCCGATCT -G GCTCTTCCGATCT -a AGATGTGTATAAGAGACAG -A AGATGTGTATAAGAGACAG -g CTGTCTCTTATACACATCT -G CTGTCTCTTATACACATCT -q 30,30 --minimum-length 80 -u 1 -o ${dataset_id}.R1.fastq -p ${dataset_id}.R2.fastq $forward $reverse
+	cutadapt -a AGATCGGAAGAGC -A AGATCGGAAGAGC -g GCTCTTCCGATCT -G GCTCTTCCGATCT -a AGATGTGTATAAGAGACAG -A AGATGTGTATAAGAGACAG -g CTGTCTCTTATACACATCT -G CTGTCTCTTATACACATCT -q 30,30 --minimum-length ${min_len} -u 1 -o ${dataset_id}.R1.fastq -p ${dataset_id}.R2.fastq $forward $reverse
 	"""	
 }
 
@@ -95,7 +96,7 @@ process reconcile_reads {
 
 process RunPostFastQC {
 	
-	publishDir "${params.output}/FastQCResults/Post", mode: 'move'
+	publishDir "${params.output}/FastQCResults/Post", mode: 'link'
 
 	tag { dataset_id }
 
