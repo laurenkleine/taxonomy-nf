@@ -1,5 +1,0 @@
-2018-03-21 09:18:58	2.5s	stoic_easley	OK	d4c9ea84de0cf138c5fa4e7fd3a2cbfe6dc3bbc1	e4273f9a-d2d7-4a97-b1f5-4aff4deaacdf	nextflow run hello
-2018-03-21 10:16:14	-	stoic_payne	-	00000000000000000000000000000000	b369a184-452a-4279-8917-9708f0eac6e9	nextflow run main_test.nf -profile docker
-2018-03-21 10:17:35	4.5s	goofy_lorenz	ERR	950a506843aab36cd707f3450c0cadac	e0fc5883-b3dd-4831-9bd1-1337a0659626	nextflow run main.nf
-2018-03-21 10:18:11	-	angry_curie	-	00000000000000000000000000000000	80a06dc7-0801-405a-a16b-e408637a4fc0	nextflow run main_test.nf -profile docker
-2018-03-21 10:22:54	-	lethal_kare	-	00000000000000000000000000000000	5e6bbfb4-0424-4594-98c6-585d4861d920	nextflow run main_test.nf -profile docker
