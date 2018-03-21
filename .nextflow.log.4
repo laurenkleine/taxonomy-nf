@@ -1,0 +1,65 @@
+Mar-21 09:18:51.896 [main] DEBUG nextflow.cli.Launcher - $> ./nextflow run hello
+Mar-21 09:18:52.192 [main] INFO  nextflow.cli.CmdRun - N E X T F L O W  ~  version 0.28.0
+Mar-21 09:18:52.408 [main] DEBUG nextflow.scm.AssetManager - Listing projects in folder: /Users/matthewkleine/.nextflow/assets
+Mar-21 09:18:52.421 [main] INFO  nextflow.cli.CmdRun - Pulling nextflow-io/hello ...
+Mar-21 09:18:52.422 [main] DEBUG nextflow.scm.RepositoryProvider - Request [credentials -:-] -> https://api.github.com/repos/nextflow-io/hello/contents/nextflow.config
+Mar-21 09:18:54.997 [main] DEBUG nextflow.scm.RepositoryProvider - Request [credentials -:-] -> https://api.github.com/repos/nextflow-io/hello/contents/main.nf
+Mar-21 09:18:55.120 [main] DEBUG nextflow.scm.RepositoryProvider - Request [credentials -:-] -> https://api.github.com/repos/nextflow-io/hello
+Mar-21 09:18:55.253 [main] DEBUG nextflow.scm.AssetManager - Pulling nextflow-io/hello -- Using remote clone url: https://github.com/nextflow-io/hello.git
+Mar-21 09:18:57.669 [main] INFO  nextflow.cli.CmdRun -  downloaded from https://github.com/nextflow-io/hello.git
+Mar-21 09:18:57.884 [main] DEBUG nextflow.scm.AssetManager - Git config: /Users/matthewkleine/.nextflow/assets/nextflow-io/hello/.git/config; branch: master; remote: origin; url: https://github.com/nextflow-io/hello.git
+Mar-21 09:18:57.884 [main] INFO  nextflow.cli.CmdRun - Launching `nextflow-io/hello` [stoic_easley] - revision: d4c9ea84de [master]
+Mar-21 09:18:57.917 [main] DEBUG nextflow.config.ConfigBuilder - Found config base: /Users/matthewkleine/.nextflow/assets/nextflow-io/hello/nextflow.config
+Mar-21 09:18:57.918 [main] DEBUG nextflow.config.ConfigBuilder - Found config local: nextflow.config
+Mar-21 09:18:57.928 [main] DEBUG nextflow.config.ConfigBuilder - Parsing config file: /Users/matthewkleine/.nextflow/assets/nextflow-io/hello/nextflow.config
+Mar-21 09:18:57.928 [main] DEBUG nextflow.config.ConfigBuilder - Parsing config file: /Users/matthewkleine/Desktop/taxonomy-nf/nextflow.config
+Mar-21 09:18:57.954 [main] DEBUG nextflow.config.ConfigBuilder - Applying config profile: `standard`
+Mar-21 09:18:57.994 [main] DEBUG nextflow.config.ConfigBuilder - Applying config profile: `standard`
+Mar-21 09:18:58.213 [main] DEBUG nextflow.Session - Session uuid: e4273f9a-d2d7-4a97-b1f5-4aff4deaacdf
+Mar-21 09:18:58.214 [main] DEBUG nextflow.Session - Run name: stoic_easley
+Mar-21 09:18:58.215 [main] DEBUG nextflow.Session - Executor pool size: 4
+Mar-21 09:18:58.256 [main] DEBUG nextflow.cli.CmdRun - 
+  Version: 0.28.0 build 4779
+  Modified: 10-03-2018 12:13 UTC (05:13 MDT)
+  System: Mac OS X 10.11.6
+  Runtime: Groovy 2.4.13 on Java HotSpot(TM) 64-Bit Server VM 1.8.0_162-b12
+  Encoding: UTF-8 (UTF-8)
+  Process: 28736@Matthews-MacBook-Pro-2.local [10.84.120.212]
+  CPUs: 4 - Mem: 4 GB (19.4 MB) - Swap: 1 GB (700.5 MB)
+Mar-21 09:18:58.280 [main] DEBUG nextflow.Session - Work-dir: /Users/matthewkleine/Desktop/taxonomy-nf/work [Mac OS X]
+Mar-21 09:18:58.281 [main] DEBUG nextflow.Session - Script base path does not exist or is not a directory: /Users/matthewkleine/.nextflow/assets/nextflow-io/hello/bin
+Mar-21 09:18:58.623 [main] DEBUG nextflow.Session - Session start invoked
+Mar-21 09:18:58.647 [main] DEBUG nextflow.processor.TaskDispatcher - Dispatcher > start
+Mar-21 09:18:58.648 [main] DEBUG nextflow.script.ScriptRunner - > Script parsing
+Mar-21 09:18:58.966 [main] DEBUG nextflow.script.ScriptRunner - > Launching execution
+Mar-21 09:18:59.275 [main] DEBUG nextflow.processor.ProcessFactory - << taskConfig executor: null
+Mar-21 09:18:59.275 [main] DEBUG nextflow.processor.ProcessFactory - >> processorType: 'local'
+Mar-21 09:18:59.285 [main] DEBUG nextflow.executor.Executor - Initializing executor: local
+Mar-21 09:18:59.288 [main] INFO  nextflow.executor.Executor - [warm up] executor > local
+Mar-21 09:18:59.301 [main] DEBUG n.processor.LocalPollingMonitor - Creating local task monitor for executor 'local' > cpus=4; memory=4 GB; capacity=4; pollInterval=100ms; dumpInterval=5m
+Mar-21 09:18:59.311 [main] DEBUG nextflow.processor.TaskDispatcher - Starting monitor: LocalPollingMonitor
+Mar-21 09:18:59.313 [main] DEBUG n.processor.TaskPollingMonitor - >>> barrier register (monitor: local)
+Mar-21 09:18:59.321 [main] DEBUG nextflow.executor.Executor - Invoke register for executor: local
+Mar-21 09:18:59.449 [main] DEBUG nextflow.Session - >>> barrier register (process: sayHello)
+Mar-21 09:18:59.457 [main] DEBUG nextflow.processor.TaskProcessor - Creating operator > sayHello -- maxForks: 4
+Mar-21 09:18:59.545 [main] DEBUG nextflow.script.ScriptRunner - > Await termination 
+Mar-21 09:18:59.546 [main] DEBUG nextflow.Session - Session await
+Mar-21 09:18:59.853 [Task submitter] DEBUG nextflow.executor.LocalTaskHandler - Launch cmd line: /bin/bash -ue .command.run
+Mar-21 09:18:59.870 [Task submitter] INFO  nextflow.Session - [88/6dbf70] Submitted process > sayHello (1)
+Mar-21 09:18:59.948 [Task submitter] DEBUG nextflow.executor.LocalTaskHandler - Launch cmd line: /bin/bash -ue .command.run
+Mar-21 09:18:59.949 [Task submitter] INFO  nextflow.Session - [52/549903] Submitted process > sayHello (4)
+Mar-21 09:18:59.958 [Task submitter] DEBUG nextflow.executor.LocalTaskHandler - Launch cmd line: /bin/bash -ue .command.run
+Mar-21 09:18:59.959 [Task submitter] INFO  nextflow.Session - [eb/7d6d63] Submitted process > sayHello (2)
+Mar-21 09:18:59.988 [Task submitter] DEBUG nextflow.executor.LocalTaskHandler - Launch cmd line: /bin/bash -ue .command.run
+Mar-21 09:18:59.989 [Task submitter] INFO  nextflow.Session - [72/aa5a26] Submitted process > sayHello (3)
+Mar-21 09:19:00.162 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[id: 3; name: sayHello (1); status: COMPLETED; exit: 0; error: -; workDir: /Users/matthewkleine/Desktop/taxonomy-nf/work/88/6dbf70f0ecc30b2f21091cdd01f2f1]
+Mar-21 09:19:00.224 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[id: 4; name: sayHello (4); status: COMPLETED; exit: 0; error: -; workDir: /Users/matthewkleine/Desktop/taxonomy-nf/work/52/54990396e23d7f395f3a211fe272c3]
+Mar-21 09:19:00.232 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[id: 2; name: sayHello (2); status: COMPLETED; exit: 0; error: -; workDir: /Users/matthewkleine/Desktop/taxonomy-nf/work/eb/7d6d63b85068dd041a4a38836239ed]
+Mar-21 09:19:00.237 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[id: 1; name: sayHello (3); status: COMPLETED; exit: 0; error: -; workDir: /Users/matthewkleine/Desktop/taxonomy-nf/work/72/aa5a26374b450606d2b1d5145b7aeb]
+Mar-21 09:19:00.245 [Actor Thread 7] DEBUG nextflow.Session - <<< barrier arrive (process: sayHello)
+Mar-21 09:19:00.246 [main] DEBUG nextflow.Session - Session await > all process finished
+Mar-21 09:19:00.253 [Task monitor] DEBUG n.processor.TaskPollingMonitor - <<< barrier arrives (monitor: local)
+Mar-21 09:19:00.254 [main] DEBUG nextflow.Session - Session await > all barriers passed
+Mar-21 09:19:00.311 [main] DEBUG nextflow.trace.StatsObserver - Workflow completed > WorkflowStats[succeedCount=4; failedCount=0; ignoredCount=0; cachedCount=0; succeedDuration=810ms; failedDuration=0ms; cachedDuration=0ms]
+Mar-21 09:19:00.507 [main] DEBUG nextflow.CacheDB - Closing CacheDB done
+Mar-21 09:19:00.551 [main] DEBUG nextflow.script.ScriptRunner - > Execution complete -- Goodbye

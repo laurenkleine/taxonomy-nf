@@ -1,0 +1,28 @@
+Mar-21 10:22:53.402 [main] DEBUG nextflow.cli.Launcher - $> ./nextflow run main_test.nf -profile docker
+Mar-21 10:22:53.590 [main] INFO  nextflow.cli.CmdRun - N E X T F L O W  ~  version 0.28.0
+Mar-21 10:22:53.603 [main] INFO  nextflow.cli.CmdRun - Launching `main_test.nf` [lethal_kare] - revision: 0000000000
+Mar-21 10:22:53.630 [main] DEBUG nextflow.config.ConfigBuilder - Found config local: nextflow.config
+Mar-21 10:22:53.633 [main] DEBUG nextflow.config.ConfigBuilder - Parsing config file: /Users/matthewkleine/Desktop/taxonomy-nf/nextflow.config
+Mar-21 10:22:53.702 [main] DEBUG nextflow.config.ConfigBuilder - Applying config profile: `docker`
+Mar-21 10:22:54.287 [main] DEBUG nextflow.config.ConfigBuilder - Available config profiles: [docker]
+Mar-21 10:22:54.342 [main] DEBUG nextflow.Session - Session uuid: 5e6bbfb4-0424-4594-98c6-585d4861d920
+Mar-21 10:22:54.342 [main] DEBUG nextflow.Session - Run name: lethal_kare
+Mar-21 10:22:54.349 [main] DEBUG nextflow.Session - Executor pool size: 4
+Mar-21 10:22:54.740 [main] DEBUG nextflow.cli.CmdRun - 
+  Version: 0.28.0 build 4779
+  Modified: 10-03-2018 12:13 UTC (05:13 MDT)
+  System: Mac OS X 10.11.6
+  Runtime: Groovy 2.4.13 on Java HotSpot(TM) 64-Bit Server VM 1.8.0_162-b12
+  Encoding: UTF-8 (UTF-8)
+  Process: 29264@Matthews-MacBook-Pro-2.local [10.20.0.223]
+  CPUs: 4 - Mem: 4 GB (14.4 MB) - Swap: 1 GB (737.2 MB)
+Mar-21 10:22:54.946 [main] ERROR nextflow.cli.Launcher - @unknown
+org.codehaus.groovy.runtime.powerassert.PowerAssertionError: assert scriptText
+       |
+       ""
+	at org.codehaus.groovy.runtime.InvokerHelper.assertFailed(InvokerHelper.java:404)
+	at org.codehaus.groovy.runtime.ScriptBytecodeAdapter.assertFailed(ScriptBytecodeAdapter.java:650)
+	at nextflow.script.ScriptRunner.execute(ScriptRunner.groovy:152)
+	at nextflow.cli.CmdRun.run(CmdRun.groovy:223)
+	at nextflow.cli.Launcher.run(Launcher.groovy:428)
+	at nextflow.cli.Launcher.main(Launcher.groovy:582)

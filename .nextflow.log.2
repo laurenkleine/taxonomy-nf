@@ -1,0 +1,229 @@
+Mar-21 10:17:35.027 [main] DEBUG nextflow.cli.Launcher - $> ./nextflow run main.nf
+Mar-21 10:17:35.246 [main] INFO  nextflow.cli.CmdRun - N E X T F L O W  ~  version 0.28.0
+Mar-21 10:17:35.285 [main] INFO  nextflow.cli.CmdRun - Launching `main.nf` [goofy_lorenz] - revision: 950a506843
+Mar-21 10:17:35.308 [main] DEBUG nextflow.config.ConfigBuilder - Found config local: nextflow.config
+Mar-21 10:17:35.311 [main] DEBUG nextflow.config.ConfigBuilder - Parsing config file: /Users/matthewkleine/Desktop/taxonomy-nf/nextflow.config
+Mar-21 10:17:35.385 [main] DEBUG nextflow.config.ConfigBuilder - Applying config profile: `standard`
+Mar-21 10:17:35.887 [main] DEBUG nextflow.Session - Session uuid: e0fc5883-b3dd-4831-9bd1-1337a0659626
+Mar-21 10:17:35.887 [main] DEBUG nextflow.Session - Run name: goofy_lorenz
+Mar-21 10:17:35.897 [main] DEBUG nextflow.Session - Executor pool size: 4
+Mar-21 10:17:35.924 [main] DEBUG nextflow.cli.CmdRun - 
+  Version: 0.28.0 build 4779
+  Modified: 10-03-2018 12:13 UTC (05:13 MDT)
+  System: Mac OS X 10.11.6
+  Runtime: Groovy 2.4.13 on Java HotSpot(TM) 64-Bit Server VM 1.8.0_162-b12
+  Encoding: UTF-8 (UTF-8)
+  Process: 29160@Matthews-MacBook-Pro-2.local [10.20.0.223]
+  CPUs: 4 - Mem: 4 GB (30.1 MB) - Swap: 1 GB (736.5 MB)
+Mar-21 10:17:35.937 [main] DEBUG nextflow.Session - Work-dir: /Users/matthewkleine/Desktop/taxonomy-nf/work [Mac OS X]
+Mar-21 10:17:36.439 [main] DEBUG nextflow.Session - Session start invoked
+Mar-21 10:17:36.467 [main] DEBUG nextflow.processor.TaskDispatcher - Dispatcher > start
+Mar-21 10:17:36.468 [main] DEBUG nextflow.script.ScriptRunner - > Script parsing
+Mar-21 10:17:37.407 [main] DEBUG nextflow.script.ScriptRunner - > Launching execution
+Mar-21 10:17:37.449 [main] DEBUG nextflow.Channel - files for syntax: glob; folder: /Users/matthewkleine/Desktop/taxonomy-nf/data/; pattern: *_R{1,2}.fastq; options: [:]
+Mar-21 10:17:38.166 [main] DEBUG nextflow.processor.ProcessFactory - << taskConfig executor: null
+Mar-21 10:17:38.166 [main] DEBUG nextflow.processor.ProcessFactory - >> processorType: 'local'
+Mar-21 10:17:38.175 [main] DEBUG nextflow.executor.Executor - Initializing executor: local
+Mar-21 10:17:38.177 [main] INFO  nextflow.executor.Executor - [warm up] executor > local
+Mar-21 10:17:38.184 [main] DEBUG n.processor.LocalPollingMonitor - Creating local task monitor for executor 'local' > cpus=4; memory=4 GB; capacity=4; pollInterval=100ms; dumpInterval=5m
+Mar-21 10:17:38.191 [main] DEBUG nextflow.processor.TaskDispatcher - Starting monitor: LocalPollingMonitor
+Mar-21 10:17:38.192 [main] DEBUG n.processor.TaskPollingMonitor - >>> barrier register (monitor: local)
+Mar-21 10:17:38.195 [main] DEBUG nextflow.executor.Executor - Invoke register for executor: local
+Mar-21 10:17:38.271 [main] DEBUG nextflow.Session - >>> barrier register (process: RunPreFastQC)
+Mar-21 10:17:38.275 [main] DEBUG nextflow.processor.TaskProcessor - Creating operator > RunPreFastQC -- maxForks: 4
+Mar-21 10:17:38.337 [main] DEBUG nextflow.processor.ProcessFactory - << taskConfig executor: null
+Mar-21 10:17:38.337 [main] DEBUG nextflow.processor.ProcessFactory - >> processorType: 'local'
+Mar-21 10:17:38.337 [main] DEBUG nextflow.executor.Executor - Initializing executor: local
+Mar-21 10:17:38.339 [main] DEBUG nextflow.Session - >>> barrier register (process: RunCutAdapt)
+Mar-21 10:17:38.339 [main] DEBUG nextflow.processor.TaskProcessor - Creating operator > RunCutAdapt -- maxForks: 4
+Mar-21 10:17:38.367 [main] DEBUG nextflow.processor.ProcessFactory - << taskConfig executor: null
+Mar-21 10:17:38.368 [main] DEBUG nextflow.processor.ProcessFactory - >> processorType: 'local'
+Mar-21 10:17:38.368 [main] DEBUG nextflow.executor.Executor - Initializing executor: local
+Mar-21 10:17:38.371 [main] DEBUG nextflow.Session - >>> barrier register (process: cd_hit_est)
+Mar-21 10:17:38.372 [main] DEBUG nextflow.processor.TaskProcessor - Creating operator > cd_hit_est -- maxForks: 4
+Mar-21 10:17:38.390 [main] DEBUG nextflow.processor.ProcessFactory - << taskConfig executor: null
+Mar-21 10:17:38.390 [main] DEBUG nextflow.processor.ProcessFactory - >> processorType: 'local'
+Mar-21 10:17:38.391 [main] DEBUG nextflow.executor.Executor - Initializing executor: local
+Mar-21 10:17:38.394 [main] DEBUG nextflow.Session - >>> barrier register (process: reconcile_reads)
+Mar-21 10:17:38.394 [main] DEBUG nextflow.processor.TaskProcessor - Creating operator > reconcile_reads -- maxForks: 4
+Mar-21 10:17:38.406 [Actor Thread 6] WARN  nextflow.processor.TaskProcessor - Input tuple does not match input set cardinality declared by process `RunCutAdapt` -- offending value: Error
+Mar-21 10:17:38.409 [main] DEBUG nextflow.processor.ProcessFactory - << taskConfig executor: null
+Mar-21 10:17:38.409 [main] DEBUG nextflow.processor.ProcessFactory - >> processorType: 'local'
+Mar-21 10:17:38.410 [main] DEBUG nextflow.executor.Executor - Initializing executor: local
+Mar-21 10:17:38.411 [Actor Thread 1] WARN  nextflow.processor.TaskProcessor - Input tuple does not match input set cardinality declared by process `RunPreFastQC` -- offending value: Error
+Mar-21 10:17:38.414 [main] DEBUG nextflow.Session - >>> barrier register (process: RunPostFastQC)
+Mar-21 10:17:38.414 [main] DEBUG nextflow.processor.TaskProcessor - Creating operator > RunPostFastQC -- maxForks: 4
+Mar-21 10:17:38.433 [main] DEBUG nextflow.processor.ProcessFactory - << taskConfig executor: null
+Mar-21 10:17:38.433 [main] DEBUG nextflow.processor.ProcessFactory - >> processorType: 'local'
+Mar-21 10:17:38.433 [main] DEBUG nextflow.executor.Executor - Initializing executor: local
+Mar-21 10:17:38.437 [main] DEBUG nextflow.Session - >>> barrier register (process: runBowtie2)
+Mar-21 10:17:38.439 [main] DEBUG nextflow.processor.TaskProcessor - Creating operator > runBowtie2 -- maxForks: 4
+Mar-21 10:17:38.485 [main] DEBUG nextflow.processor.ProcessFactory - << taskConfig executor: null
+Mar-21 10:17:38.485 [main] DEBUG nextflow.processor.ProcessFactory - >> processorType: 'local'
+Mar-21 10:17:38.486 [main] DEBUG nextflow.executor.Executor - Initializing executor: local
+Mar-21 10:17:38.487 [main] DEBUG nextflow.Session - >>> barrier register (process: runSPAdes)
+Mar-21 10:17:38.487 [main] DEBUG nextflow.processor.TaskProcessor - Creating operator > runSPAdes -- maxForks: 4
+Mar-21 10:17:38.529 [main] DEBUG nextflow.processor.ProcessFactory - << taskConfig executor: null
+Mar-21 10:17:38.529 [main] DEBUG nextflow.processor.ProcessFactory - >> processorType: 'local'
+Mar-21 10:17:38.529 [main] DEBUG nextflow.executor.Executor - Initializing executor: local
+Mar-21 10:17:38.531 [main] DEBUG nextflow.Session - >>> barrier register (process: contigBowtie)
+Mar-21 10:17:38.533 [main] DEBUG nextflow.processor.TaskProcessor - Creating operator > contigBowtie -- maxForks: 4
+Mar-21 10:17:38.549 [main] DEBUG nextflow.processor.ProcessFactory - << taskConfig executor: null
+Mar-21 10:17:38.550 [main] DEBUG nextflow.processor.ProcessFactory - >> processorType: 'local'
+Mar-21 10:17:38.550 [main] DEBUG nextflow.executor.Executor - Initializing executor: local
+Mar-21 10:17:38.552 [main] DEBUG nextflow.Session - >>> barrier register (process: tallySAMsubjects)
+Mar-21 10:17:38.553 [main] DEBUG nextflow.processor.TaskProcessor - Creating operator > tallySAMsubjects -- maxForks: 4
+Mar-21 10:17:38.566 [main] DEBUG nextflow.processor.ProcessFactory - << taskConfig executor: null
+Mar-21 10:17:38.567 [main] DEBUG nextflow.processor.ProcessFactory - >> processorType: 'local'
+Mar-21 10:17:38.567 [main] DEBUG nextflow.executor.Executor - Initializing executor: local
+Mar-21 10:17:38.575 [main] DEBUG nextflow.Session - >>> barrier register (process: compositeSAMfile)
+Mar-21 10:17:38.576 [main] DEBUG nextflow.processor.TaskProcessor - Creating operator > compositeSAMfile -- maxForks: 4
+Mar-21 10:17:38.628 [main] DEBUG nextflow.processor.ProcessFactory - << taskConfig executor: null
+Mar-21 10:17:38.628 [main] DEBUG nextflow.processor.ProcessFactory - >> processorType: 'local'
+Mar-21 10:17:38.628 [main] DEBUG nextflow.executor.Executor - Initializing executor: local
+Mar-21 10:17:38.630 [main] DEBUG nextflow.Session - >>> barrier register (process: BLASTcontigs_vs_nt)
+Mar-21 10:17:38.630 [main] DEBUG nextflow.processor.TaskProcessor - Creating operator > BLASTcontigs_vs_nt -- maxForks: 4
+Mar-21 10:17:38.663 [main] DEBUG nextflow.processor.ProcessFactory - << taskConfig executor: null
+Mar-21 10:17:38.663 [main] DEBUG nextflow.processor.ProcessFactory - >> processorType: 'local'
+Mar-21 10:17:38.664 [main] DEBUG nextflow.executor.Executor - Initializing executor: local
+Mar-21 10:17:38.666 [main] DEBUG nextflow.Session - >>> barrier register (process: taxonomic_Assessment_nt)
+Mar-21 10:17:38.667 [main] DEBUG nextflow.processor.TaskProcessor - Creating operator > taxonomic_Assessment_nt -- maxForks: 4
+Mar-21 10:17:38.676 [main] DEBUG nextflow.processor.ProcessFactory - << taskConfig executor: null
+Mar-21 10:17:38.676 [Task submitter] DEBUG nextflow.executor.LocalTaskHandler - Launch cmd line: /bin/bash -ue .command.run
+Mar-21 10:17:38.677 [main] DEBUG nextflow.processor.ProcessFactory - >> processorType: 'local'
+Mar-21 10:17:38.677 [main] DEBUG nextflow.executor.Executor - Initializing executor: local
+Mar-21 10:17:38.678 [main] DEBUG nextflow.Session - >>> barrier register (process: virusDerivedReads_nt)
+Mar-21 10:17:38.678 [main] DEBUG nextflow.processor.TaskProcessor - Creating operator > virusDerivedReads_nt -- maxForks: 4
+Mar-21 10:17:38.687 [main] DEBUG nextflow.processor.ProcessFactory - << taskConfig executor: null
+Mar-21 10:17:38.688 [main] DEBUG nextflow.processor.ProcessFactory - >> processorType: 'local'
+Mar-21 10:17:38.688 [main] DEBUG nextflow.executor.Executor - Initializing executor: local
+Mar-21 10:17:38.689 [main] DEBUG nextflow.Session - >>> barrier register (process: runDIAMOND)
+Mar-21 10:17:38.690 [main] DEBUG nextflow.processor.TaskProcessor - Creating operator > runDIAMOND -- maxForks: 4
+Mar-21 10:17:38.702 [Task submitter] INFO  nextflow.Session - [89/e19460] Submitted process > RunPreFastQC (Error)
+Mar-21 10:17:38.703 [main] DEBUG nextflow.processor.ProcessFactory - << taskConfig executor: null
+Mar-21 10:17:38.703 [main] DEBUG nextflow.processor.ProcessFactory - >> processorType: 'local'
+Mar-21 10:17:38.703 [main] DEBUG nextflow.executor.Executor - Initializing executor: local
+Mar-21 10:17:38.704 [main] DEBUG nextflow.Session - >>> barrier register (process: taxonomic_Assessment_nr)
+Mar-21 10:17:38.705 [main] DEBUG nextflow.processor.TaskProcessor - Creating operator > taxonomic_Assessment_nr -- maxForks: 4
+Mar-21 10:17:38.727 [main] DEBUG nextflow.processor.ProcessFactory - << taskConfig executor: null
+Mar-21 10:17:38.731 [main] DEBUG nextflow.processor.ProcessFactory - >> processorType: 'local'
+Mar-21 10:17:38.733 [main] DEBUG nextflow.executor.Executor - Initializing executor: local
+Mar-21 10:17:38.736 [main] DEBUG nextflow.Session - >>> barrier register (process: virusDerivedReads_nr)
+Mar-21 10:17:38.737 [main] DEBUG nextflow.processor.TaskProcessor - Creating operator > virusDerivedReads_nr -- maxForks: 4
+Mar-21 10:17:38.746 [main] DEBUG nextflow.script.ScriptRunner - > Await termination 
+Mar-21 10:17:38.746 [main] DEBUG nextflow.Session - Session await
+Mar-21 10:17:38.771 [Task submitter] DEBUG nextflow.executor.LocalTaskHandler - Launch cmd line: /bin/bash -ue .command.run
+Mar-21 10:17:38.772 [Task submitter] INFO  nextflow.Session - [ef/ef3527] Submitted process > RunCutAdapt (Error)
+Mar-21 10:17:39.118 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[id: 1; name: RunPreFastQC (Error); status: COMPLETED; exit: 127; error: -; workDir: /Users/matthewkleine/Desktop/taxonomy-nf/work/89/e1946042782a1584bcac6e9cd25d34]
+Mar-21 10:17:39.273 [Task monitor] ERROR nextflow.processor.TaskProcessor - Error executing process > 'RunPreFastQC (Error)'
+
+Caused by:
+  Process `RunPreFastQC (Error)` terminated with an error exit status (127)
+
+Command executed:
+
+  mkdir temp
+  fastqc -f fastq input.1 input.2 -o temp
+  mv temp/*.{html,zip} .
+
+Command exit status:
+  127
+
+Command output:
+  (empty)
+
+Command error:
+  .command.sh: line 3: fastqc: command not found
+
+Work dir:
+  /Users/matthewkleine/Desktop/taxonomy-nf/work/89/e1946042782a1584bcac6e9cd25d34
+
+Tip: view the complete command output by changing to the process work dir and entering the command `cat .command.out`
+Mar-21 10:17:39.280 [Actor Thread 5] DEBUG nextflow.Session - <<< barrier arrive (process: RunPreFastQC)
+Mar-21 10:17:39.281 [Task monitor] DEBUG nextflow.Session - Session aborted -- Cause: Process `RunPreFastQC (Error)` terminated with an error exit status (127)
+Mar-21 10:17:39.375 [Task monitor] DEBUG nextflow.Session - The following nodes are still active:
+[process] cd_hit_est
+  status=ACTIVE
+  port 0: (queue) OPEN; channel: -
+  port 1: (cntrl) OPEN; channel: $
+
+[process] reconcile_reads
+  status=ACTIVE
+  port 0: (queue) OPEN; channel: -
+  port 1: (queue) OPEN; channel: -
+  port 2: (cntrl) OPEN; channel: $
+
+[process] RunPostFastQC
+  status=ACTIVE
+  port 0: (queue) OPEN; channel: -
+  port 1: (cntrl) OPEN; channel: $
+
+[process] runBowtie2
+  status=ACTIVE
+  port 0: (queue) OPEN; channel: -
+  port 1: (cntrl) OPEN; channel: $
+
+[process] runSPAdes
+  status=ACTIVE
+  port 0: (queue) OPEN; channel: -
+  port 1: (cntrl) OPEN; channel: $
+
+[process] contigBowtie
+  status=ACTIVE
+  port 0: (queue) OPEN; channel: -
+  port 1: (queue) OPEN; channel: -
+  port 2: (cntrl) OPEN; channel: $
+
+[process] tallySAMsubjects
+  status=ACTIVE
+  port 0: (queue) OPEN; channel: -
+  port 1: (cntrl) OPEN; channel: $
+
+[process] compositeSAMfile
+  status=ACTIVE
+  port 0: (queue) OPEN; channel: -
+  port 1: (queue) OPEN; channel: -
+  port 2: (cntrl) OPEN; channel: $
+
+[process] BLASTcontigs_vs_nt
+  status=ACTIVE
+  port 0: (queue) OPEN; channel: -
+  port 1: (cntrl) OPEN; channel: $
+
+[process] taxonomic_Assessment_nt
+  status=ACTIVE
+  port 0: (queue) OPEN; channel: -
+  port 1: (queue) OPEN; channel: -
+  port 2: (cntrl) OPEN; channel: $
+
+[process] virusDerivedReads_nt
+  status=ACTIVE
+  port 0: (queue) OPEN; channel: -
+  port 1: (queue) OPEN; channel: -
+  port 2: (cntrl) OPEN; channel: $
+
+[process] runDIAMOND
+  status=ACTIVE
+  port 0: (queue) OPEN; channel: -
+  port 1: (cntrl) OPEN; channel: $
+
+[process] taxonomic_Assessment_nr
+  status=ACTIVE
+  port 0: (queue) OPEN; channel: -
+  port 1: (queue) OPEN; channel: -
+  port 2: (cntrl) OPEN; channel: $
+
+[process] virusDerivedReads_nr
+  status=ACTIVE
+  port 0: (queue) OPEN; channel: -
+  port 1: (queue) OPEN; channel: -
+  port 2: (cntrl) OPEN; channel: $
+
+Mar-21 10:17:39.389 [main] DEBUG nextflow.Session - Session await > all process finished
+Mar-21 10:17:39.389 [main] DEBUG nextflow.Session - Session await > all barriers passed
+Mar-21 10:17:39.406 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[id: 2; name: RunCutAdapt (Error); status: COMPLETED; exit: 127; error: -; workDir: /Users/matthewkleine/Desktop/taxonomy-nf/work/ef/ef3527422a7678feea346e440b3828]
+Mar-21 10:17:39.409 [Actor Thread 5] DEBUG nextflow.Session - <<< barrier arrive (process: RunCutAdapt)
+Mar-21 10:17:39.410 [Task monitor] DEBUG n.processor.TaskPollingMonitor - <<< barrier arrives (monitor: local)
+Mar-21 10:17:39.433 [main] DEBUG nextflow.trace.StatsObserver - Workflow completed > WorkflowStats[succeedCount=0; failedCount=2; ignoredCount=0; cachedCount=0; succeedDuration=0ms; failedDuration=591ms; cachedDuration=0ms]
+Mar-21 10:17:39.510 [main] DEBUG nextflow.CacheDB - Closing CacheDB done
+Mar-21 10:17:39.558 [main] DEBUG nextflow.script.ScriptRunner - > Execution complete -- Goodbye
