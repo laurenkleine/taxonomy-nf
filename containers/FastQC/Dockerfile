@@ -11,12 +11,13 @@ LABEL software="FASTQC" \
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     ca-certificates \
+    openjdk-8-jdk \
     unzip \
     wget \
     && rm -rf /var/lib/apt/lists/*
 
 ENV TMP="/tmp" \
-	FASTQC_ZIP="fastqc_v0.11.5.zip"
+    FASTQC_ZIP="fastqc_v0.11.5.zip"
 
 
 RUN wget http://www.bioinformatics.babraham.ac.uk/projects/fastqc/$FASTQC_ZIP -O $TMP/$FASTQC_ZIP && \
