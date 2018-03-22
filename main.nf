@@ -108,7 +108,7 @@ process RunPostFastQC {
 
 	"""
 	mkdir temp
-	fastqc -f fastq $baseDir/test/reconcile_reads_Results/${dataset_id}_R1_fu.fastq $baseDir/test/reconcile_reads_Results/${dataset_id}_R2_fu.fastq -o temp
+	fastqc -f fastq ${dataset_id}_R1_fu.fastq {dataset_id}_R2_fu.fastq -o temp
 	mv temp/*.{html,zip} .
 	"""
 }
@@ -254,7 +254,7 @@ process BLASTcontigs_vs_nt {
 
 process taxonomic_Assessment_nt {
 
-	publishDir "${params.output}/nt_tally_Results", mode: "link"
+	publishDir ".", mode: "link"
 	
 	tag { dataset_id }
 	
@@ -268,9 +268,9 @@ process taxonomic_Assessment_nt {
 		set dataset_id, file("${dataset_id}.bn_nt.tab_tree_tally") into tab_tree_tally_results
 	
 	"""
-	$baseDir/bin/tally_hits_universal.pl -w ${dataset_id}_spade_contigs_R1.sam.subject_hits ${dataset_id}.fa.bn_nt > ${dataset_id}.fa.bn_nt.tally
-	$baseDir/bin/tally_hits_universal.pl -w ${dataset_id}_spade_contigs_R1.sam.subject_hits -d -o desc_tally ${dataset_id}.fa.bn_nt > ${dataset_id}.bn_nt.desc_tally
-	$baseDir/bin/tally_hits_universal.pl -w ${dataset_id}_spade_contigs_R1.sam.subject_hits -t -ti -o tab_tree_tally ${dataset_id}.fa.bn_nt > ${dataset_id}.bn_nt.tab_tree_tally
+	$baseDir/bin/tally_hits_universal.pl -lca -w ${dataset_id}_spade_contigs_R1.sam.subject_hits ${dataset_id}.fa.bn_nt > ${dataset_id}.fa.bn_nt.tally
+	$baseDir/bin/tally_hits_universal.pl -lca -w ${dataset_id}_spade_contigs_R1.sam.subject_hits -d -o desc_tally ${dataset_id}.fa.bn_nt > ${dataset_id}.bn_nt.desc_tally
+	$baseDir/bin/tally_hits_universal.pl -lca -w ${dataset_id}_spade_contigs_R1.sam.subject_hits -t -ti -o tab_tree_tally ${dataset_id}.fa.bn_nt > ${dataset_id}.bn_nt.tab_tree_tally
 	"""
 }	
 
@@ -278,7 +278,7 @@ process taxonomic_Assessment_nt {
 
 process virusDerivedReads_nt {
 
-	publishDir "${params.output}/nt_tally_Results", mode: "link"
+	publishDir ".", mode: "link"
 	
 	tag { dataset_id }
 	
@@ -315,7 +315,7 @@ process runDIAMOND {
 
 process taxonomic_Assessment_nr {
 
-	publishDir "${params.output}/nr_tally_Results", mode: "link"
+	publishDir ".", mode: "link"
 	
 	tag { dataset_id }
 	
@@ -329,15 +329,15 @@ process taxonomic_Assessment_nr {
 		set dataset_id, file("${dataset_id}.dmd_nr.tab_tree_tally") into nr_tab_tree_tally_results
 		
 	"""
-	$baseDir/bin/tally_hits_universal.pl -w ${dataset_id}_spade_contigs_R1.sam.subject_hits ${dataset_id}_spade_contigs_n.fa.dmd_nr > ${dataset_id}.dmd_nr.tally
-	$baseDir/bin/tally_hits_universal.pl -w ${dataset_id}_spade_contigs_R1.sam.subject_hits -d -o desc_tally ${dataset_id}_spade_contigs_n.fa.dmd_nr > ${dataset_id}.dmd_nr.desc_tally
-	$baseDir/bin/tally_hits_universal.pl -w ${dataset_id}_spade_contigs_R1.sam.subject_hits -t -ti -o tab_tree_tally ${dataset_id}_spade_contigs_n.fa.dmd_nr > ${dataset_id}.dmd_nr.tab_tree_tally
+	$baseDir/bin/tally_hits_universal.pl -lca -w ${dataset_id}_spade_contigs_R1.sam.subject_hits ${dataset_id}_spade_contigs_n.fa.dmd_nr > ${dataset_id}.dmd_nr.tally
+	$baseDir/bin/tally_hits_universal.pl -lca -w ${dataset_id}_spade_contigs_R1.sam.subject_hits -d -o desc_tally ${dataset_id}_spade_contigs_n.fa.dmd_nr > ${dataset_id}.dmd_nr.desc_tally
+	$baseDir/bin/tally_hits_universal.pl -lca -w ${dataset_id}_spade_contigs_R1.sam.subject_hits -t -ti -o tab_tree_tally ${dataset_id}_spade_contigs_n.fa.dmd_nr > ${dataset_id}.dmd_nr.tab_tree_tally
 	"""
 }
 
 process virusDerivedReads_nr {
 
-	publishDir "${params.output}/nr_tally_Results", mode: "link"
+	publishDir ".", mode: "link"
 	
 	tag { dataset_id }
 	
