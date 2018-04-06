@@ -108,7 +108,7 @@ process RunPostFastQC {
 
 	"""
 	mkdir temp
-	fastqc -f fastq ${dataset_id}_R1_fu.fastq {dataset_id}_R2_fu.fastq -o temp
+	fastqc -f fastq ${dataset_id}_R1_fu.fastq ${dataset_id}_R2_fu.fastq -o temp
 	mv temp/*.{html,zip} .
 	"""
 }
