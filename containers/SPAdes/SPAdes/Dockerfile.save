@@ -1,0 +1,24 @@
+qFROM ubuntu:latest
+
+MAINTAINER Lauren Kleine <laurenrk@rams.colostate.edu>
+
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    ca-certificates \
+    python3 \
+    wget \
+    zlib1g-dev \
+ && rm -rf /var/lib/apt/lists/*
+
+
+ENV ZIP=SPAdes-3.5.0-Linux.tar.gz \
+    BIN="spades" \
+    DEST="/usr/local/bin"
+
+
+RUN wget http://spades.bioinf.spbau.ru/release3.5.0/$ZIP -O /opt/$ZIP && \
+    tar -xvf /opt/$ZIP -C /opt && \
+    cd /opt/SPAdes-3.5.0-Linux && \
+    ln -s /opt/SPAdes-3.5.0-Linux/$BIN $DEST && \
+    rm /opt/$ZIP
