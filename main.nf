@@ -290,7 +290,7 @@ process virusDerivedReads_nt {
 		set dataset_id, file('*.fa') into reads_results
 		
 	"""
-	$baseDir/bin/distribute_fasta_by_blast_taxid.pl -v ${dataset_id}.fa ${dataset_id}.fa.bn_nt
+	$baseDir/bin/distribute_fasta_by_blast_taxid.pl -v ${dataset_id}_spade_contigs.fa ${dataset_id}.fa.bn_nt
 	"""
 }
 	
@@ -349,6 +349,6 @@ process virusDerivedReads_nr {
 		set dataset_id, file("*.fa") into final_channel
 	
 	"""
-	$baseDir/bin/distribute_fasta_by_blast_taxid.pl -v ${dataset_id}.fa ${dataset_id}_spade_contigs_n.fa.dmd_nr
+	$baseDir/bin/distribute_fasta_by_blast_taxid.pl -v ${dataset_id}_spade_contigs.fa ${dataset_id}_spade_contigs_n.fa.dmd_nr
 	"""
 }
