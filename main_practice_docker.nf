@@ -23,7 +23,7 @@ Channel
 
 process RunPreFastQC {
 	
-	publishDir "${params.output}/FastQCResults/Pre", mode: 'link'
+	publishDir "${params.output}/FastQCResults/Pre", mode: 'copy'
 	
 	tag { dataset_id }
 	
@@ -42,7 +42,7 @@ process RunPreFastQC {
 
 process RunCutAdapt {
 	
-	publishDir "${params.output}/CutAdaptResults", mode: 'link'
+	publishDir "${params.output}/CutAdaptResults", mode: 'copy'
 	
 	tag { dataset_id }
 	
@@ -57,7 +57,7 @@ process RunCutAdapt {
 
 process cd_hit_est {
 	
-	publishDir "${params.output}/cd_hit_est_Results", mode: 'link'
+	publishDir "${params.output}/cd_hit_est_Results", mode: 'copy'
 	
 	tag { dataset_id }
 	
@@ -75,7 +75,7 @@ process cd_hit_est {
 }
 
 process reconcile_reads {
-	publishDir "${params.output}/reconcile_reads_Results", mode: 'link'
+	publishDir "${params.output}/reconcile_reads_Results", mode: 'copy'
 
 	tag { dataset_id }
 
@@ -96,7 +96,7 @@ process reconcile_reads {
 
 process RunPostFastQC {
 	
-	publishDir "${params.output}/FastQCResults/Post", mode: 'link'
+	publishDir "${params.output}/FastQCResults/Post", mode: 'copy'
 
 	tag { dataset_id }
 
@@ -116,7 +116,7 @@ process RunPostFastQC {
 
 process runBowtie2 {
 	
-	publishDir "${params.output}/Bowtie2_Results", mode: 'link'
+	publishDir "${params.output}/Bowtie2_Results", mode: 'copy'
 	
 	tag { dataset_id }
 	
@@ -148,7 +148,7 @@ process runBowtie2 {
 
 process runSPAdes {
 	
-	publishDir "${params.output}/SPAdes_Results", mode: 'link'
+	publishDir "${params.output}/SPAdes_Results", mode: 'copy'
 	
 	tag { dataset_id }
 	
@@ -169,7 +169,7 @@ process runSPAdes {
 
 process contigBowtie {
 
-	publishDir "${params.output}/contigBowtie_Results", mode: "link"
+	publishDir "${params.output}/contigBowtie_Results", mode: "copy"
 	
 	tag { dataset_id }
 	
@@ -192,7 +192,7 @@ process contigBowtie {
 
 process tallySAMsubjects {
 
-	publishDir "${params.output}/tallySAMsubjects_Results", mode: "link"
+	publishDir "${params.output}/tallySAMsubjects_Results", mode: "copy"
 	
 	tag { dataset_id }
 
@@ -212,7 +212,7 @@ process tallySAMsubjects {
 	
 process compositeSAMfile {
 
-	publishDir "${params.output}/compositeSAMfile_Results", mode: "link"
+	publishDir "${params.output}/compositeSAMfile_Results", mode: "copy"
 	
 	tag {dataset_id }
 	
@@ -234,7 +234,7 @@ process compositeSAMfile {
 
 process BLASTcontigs_vs_nt {
 	
-	publishDir "${params.output}/BLAST_Results", mode: "link"
+	publishDir "${params.output}/BLAST_Results", mode: "copy"
 	
 	tag { dataset_id }
 	
