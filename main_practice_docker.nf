@@ -246,7 +246,7 @@ process BLASTcontigs_vs_nt {
 		set dataset_id, file("${dataset_id}_spade_contigs_n.fa") into (BLASTresults)
 		
 	"""
-	blastn -query ${dataset_id}_spade_contigs.fa -db nt -remote -evalue 1e-8 -task megablast -outfmt 6 | $baseDir/bin/consolidate_blast_output > ${dataset_id}.fa.bn_nt
+	blastn -query ${dataset_id}_spade_contigs.fa -db /home/databases/nr_nt/nt  -evalue 1e-8 -task megablast -outfmt 6 | $baseDir/bin/consolidate_blast_output > ${dataset_id}.fa.bn_nt
 	
 	$baseDir/bin/fasta_from_blast -f ${dataset_id}_spade_contigs.fa -r ${dataset_id}.fa.bn_nt > ${dataset_id}_spade_contigs_n.fa
 	"""
