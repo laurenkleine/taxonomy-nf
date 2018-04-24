@@ -2,23 +2,14 @@ FROM ubuntu:latest
 
 MAINTAINER Lauren Kleine <laurenrk@rams.colostate.edu>
 
-RUN apt-get update && apt-get install -y \
-        aufs-tools \
-        automake \
-        build-essential \
-	cmake \
-        wget \
-        git \
-        libbz2-dev \
-        unzip \
-        python \
-	tar \
-	zlib1g-dev \
-	libncurses5-dev
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    ca-certificates \
+    wget \
+    zlib1g-dev \
+ && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/BenLangmead/bowtie2.git && \
-        cd bowtie2 && \
-        make NO_TBB=1 && \
-        make install && \
-	cd && \
-	rm -rf /bowtie2
+RUN wget -q -O bowtie.zip https://sourceforge.net/projects/bowtie-bio/files/bowtie2/2.2.7\5/bowtie2-2.2.5-linux-x86_64.zip/download && \
+  unzip bowtie.zip -d /opt/ && \
+  ln -s /opt/bowtie2-2.2.5/ /opt/bowtie && \
+  rm bowtie.zip
