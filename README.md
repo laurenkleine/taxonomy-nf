@@ -1,6 +1,6 @@
 # taxonomy-nf
 
-#Stenglein Lab Standard Taxonomic Assessment Pipeline
+# Stenglein Lab Standard Taxonomic Assessment Pipeline
 
 [>>>Full Documentation<<<](https://laurenkleine.github.io/shpinx-nf-doc-taxonomy/)
 
