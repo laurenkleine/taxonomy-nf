@@ -19,7 +19,7 @@ Channel
 	.into { read_pairs; qc_pairs }
 
 
-/*dumby process*/
+/*process that establishes correct fastq version*/
 
 process RunPreFastQC {
 	
